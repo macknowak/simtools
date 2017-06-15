@@ -4,5 +4,6 @@
 
 ### Added
 
+- Added package installer.
 - Added package description.
 - Added package license terms.
