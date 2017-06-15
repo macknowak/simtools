@@ -1,7 +1,12 @@
 # -*- coding: utf-8 -*-
-"""Exceptions raised by SimTools."""
+"""Exceptions and warnings raised by SimTools."""
 
 
 class SimToolsError(Exception):
     """Base SimTools exception."""
+    pass
+
+
+class SimToolsWarning(Warning):
+    """Base SimTools warning."""
     pass
