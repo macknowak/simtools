@@ -2,3 +2,5 @@
 *.egg-info
 *.eggs
 *.py[co]
+*.cache
+__pycache__
