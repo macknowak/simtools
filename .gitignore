@@ -1,6 +1,11 @@
+# Byte-compiled code
+__pycache__/
+*.py[cod]
+
+# Packaged code
+*.egg-info/
+*.eggs/
 *.egg
-*.egg-info
-*.eggs
-*.py[co]
-*.cache
-__pycache__
+
+# Unit tests
+*.cache/
