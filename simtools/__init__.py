@@ -8,5 +8,6 @@ Python.
 __version__ = '0.1.0.dev1'
 __author__ = "Przemyslaw (Mack) Nowak"
 
+from .argparse import parse_args
 from .params import load_params, Params
-from . import params
+from . import argparse, params

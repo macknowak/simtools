@@ -4,6 +4,7 @@
 
 ### Added
 
+- Added parsing command line arguments.
 - Added loading parameters from a Python file.
 - Added hierarchy of SimTools exceptions.
 - Added package installer.
