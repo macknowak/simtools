@@ -10,4 +10,5 @@ __author__ = "Przemyslaw (Mack) Nowak"
 
 from .argparse import parse_args
 from .params import load_params, Params
-from . import argparse, params
+from .utils import save_versions
+from . import argparse, params, utils
