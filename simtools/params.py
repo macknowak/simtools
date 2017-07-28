@@ -55,11 +55,12 @@ class Params(Dict):
             if isinstance(save_params, basestring):
                 raise TypeError("'save_params' is a string.")
 
-        # Validate extra keyword arguments
-        for arg in ('obj', 'fp'):
-            if arg in kwargs:
-                raise TypeError("save() got an unexpected keyword argument "
-                                "'{}'.".format(arg))
+        # If necessary, validate extra keyword arguments
+        if kwargs:
+            for arg in ('obj', 'fp'):
+                if arg in kwargs:
+                    raise TypeError("save() got an unexpected keyword "
+                                    "argument '{}'.".format(arg))
 
         # Determine parameters to be saved
         if save_params is not None:
