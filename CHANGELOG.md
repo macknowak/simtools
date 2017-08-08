@@ -8,6 +8,7 @@
 - Added loading parameters from a Python file.
 - Added saving parameters to a JSON file.
 - Added saving software versions to a JSON file.
+- Added generating simulation id based on local date and time.
 - Added hierarchy of SimTools exceptions.
 - Added package installer.
 - Added package description.
