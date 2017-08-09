@@ -26,7 +26,7 @@ def _directory_type(dirname):
     return dirname
 
 
-_all_options = {
+all_options = {
     'data_dirname': {
         'arg': ["-d", "--data-dir"],
         'spec': {
@@ -75,13 +75,13 @@ def parse_args(allow_options):
     """Parse command line arguments."""
     # Check if all allowed options are supported
     parser = argparse.ArgumentParser()
-    unsupported_options = set(allow_options) - set(_all_options)
+    unsupported_options = set(allow_options) - set(all_options)
     if unsupported_options:
         parser.error(
             "unsupported options: {}".format(' '.join(unsupported_options)))
 
     # Process command line arguments
     for option in allow_options:
-        opt = _all_options[option]
+        opt = all_options[option]
         parser.add_argument(*opt['arg'], **opt['spec'])
     return Dict(vars(parser.parse_args()))

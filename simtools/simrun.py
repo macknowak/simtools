@@ -5,11 +5,15 @@ Simulation launch services provide the following functionality:
 
 - generating simulation id based on local date and time;
 - generating simulation directory name;
-- creating directory structure for simulation.
+- creating directory structure for simulation;
+- launching simulation.
 """
 
 import os
+import subprocess
 import time
+
+from simtools.argparse import all_options as options
 
 TMP_DIR_PREFIX = "_"
 
@@ -38,3 +42,32 @@ def make_dirs(sim_dirname, sim_master_dirname=None, data_dirname=None):
     sim_path = os.path.join(sim_master_dirname, sim_dirname)
     os.makedirs(os.path.join(sim_path, data_dirname))
     return sim_path
+
+
+def run_sim(model_filename, params_filename=None, sim_id=None,
+            data_dirname=None, executable=None):
+    """Launch simulation."""
+    cmd = []
+    if executable:
+        try:
+            basestring
+        except NameError:
+            basestring = str
+        if isinstance(executable, basestring):
+            cmd.append(executable)
+        else:
+            try:
+                iter(executable)
+            except TypeError:
+                raise TypeError(
+                    "'executable' is neither a string nor iterable.")
+            cmd += executable
+    cmd.append(model_filename)
+    if params_filename:
+        cmd += [options['params_filename']['arg'][0], params_filename]
+    if sim_id:
+        cmd += [options['sim_id']['arg'][0], sim_id]
+    if data_dirname:
+        cmd += [options['data_dirname']['arg'][0], data_dirname]
+    cmd.append(options['save_data']['arg'][0])
+    return subprocess.call(cmd)
