@@ -15,7 +15,18 @@ import os
 from simtools.base import Dict
 
 
-def _directory_type(dirname):
+def file_r_type(filename):
+    """Check if file exists and is readable."""
+    if not os.path.isfile(filename):
+        raise argparse.ArgumentTypeError(
+            "no such file: '{}'".format(filename))
+    if not os.access(filename, os.R_OK):
+        raise argparse.ArgumentTypeError(
+            "permission denied: '{}'".format(filename))
+    return filename
+
+
+def dir_w_type(dirname):
     """Check if directory exists and is writable."""
     if not os.path.isdir(dirname):
         raise argparse.ArgumentTypeError(
@@ -32,7 +43,7 @@ all_options = {
         'spec': {
             'metavar': "DIR",
             'dest': 'data_dirname',
-            'type': _directory_type,
+            'type': dir_w_type,
             'help': "data directory"
             }
         },
@@ -49,6 +60,7 @@ all_options = {
         'spec': {
             'metavar': "FILE",
             'dest': 'params_filename',
+            'type': file_r_type,
             'help': "parameter file"
             }
         },

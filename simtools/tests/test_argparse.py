@@ -13,56 +13,92 @@ from simtools.argparse import parse_args
     ["model.py", "-p", "params.py", "-i", "20001020_102030", "-s", "-d", "."],
     ["model.py", "--params", "params.py", "--simid", "20001020_102030",
      "--save", "--data-dir", "."]])
-def test_run_options(monkeypatch, argv):
+def test_run_options(monkeypatch, tmpdir, argv):
+    tmpdir.join("params.py").write("")
     monkeypatch.setattr(sys, 'argv', argv)
 
-    # Only selected options
-    allow_options = ['params_filename', 'sim_id', 'save_data', 'data_dirname']
+    with tmpdir.as_cwd():
+        # Only selected options
+        allow_options = ['params_filename', 'sim_id', 'save_data',
+                         'data_dirname']
 
-    options = parse_args(allow_options)
-    assert options.params_filename == "params.py"
-    assert options.sim_id == "20001020_102030"
-    assert options.save_data == True
-    with pytest.raises(AttributeError):
-        options.only_test_params
+        options = parse_args(allow_options)
+        assert options.params_filename == "params.py"
+        assert options.sim_id == "20001020_102030"
+        assert options.save_data == True
+        with pytest.raises(AttributeError):
+            options.only_test_params
 
-    # All supported options
-    allow_options = ['params_filename', 'sim_id', 'save_data', 'data_dirname',
-                     'only_test_params']
+        # All supported options
+        allow_options = ['params_filename', 'sim_id', 'save_data',
+                         'data_dirname', 'only_test_params']
 
-    options = parse_args(allow_options)
-    assert options.params_filename == "params.py"
-    assert options.sim_id == "20001020_102030"
-    assert options.save_data == True
-    assert options.only_test_params == False
+        options = parse_args(allow_options)
+        assert options.params_filename == "params.py"
+        assert options.sim_id == "20001020_102030"
+        assert options.save_data == True
+        assert options.only_test_params == False
 
 
 @pytest.mark.parametrize('argv', [
     ["model.py", "-p", "params.py", "-t"],
     ["model.py", "--params", "params.py", "--only-params"]])
-def test_only_test_params_option(monkeypatch, argv):
+def test_only_test_params_option(monkeypatch, tmpdir, argv):
+    tmpdir.join("params.py").write("")
     monkeypatch.setattr(sys, 'argv', argv)
 
-    # Only selected options
-    allow_options = ['params_filename', 'only_test_params']
+    with tmpdir.as_cwd():
+        # Only selected options
+        allow_options = ['params_filename', 'only_test_params']
+
+        options = parse_args(allow_options)
+        assert options.params_filename == "params.py"
+        with pytest.raises(AttributeError):
+            options.sim_id
+        with pytest.raises(AttributeError):
+            options.save_data
+        assert options.only_test_params == True
+
+        # All supported options
+        allow_options = ['params_filename', 'sim_id', 'save_data',
+                         'data_dirname', 'only_test_params']
+
+        options = parse_args(allow_options)
+        assert options.params_filename == "params.py"
+        assert options.sim_id == None
+        assert options.save_data == False
+        assert options.only_test_params == True
+
+
+def test_params_filename_option(monkeypatch, tmpdir):
+    allow_options = ['params_filename']
+
+    # Correct
+    params_file = tmpdir.join("params.py")
+    params_file.write("")
+    argv = ["model.py", "-p", str(params_file)]
+    monkeypatch.setattr(sys, 'argv', argv)
 
     options = parse_args(allow_options)
-    assert options.params_filename == "params.py"
-    with pytest.raises(AttributeError):
-        options.sim_id
-    with pytest.raises(AttributeError):
-        options.save_data
-    assert options.only_test_params == True
+    assert options.params_filename == str(params_file)
 
-    # All supported options
-    allow_options = ['params_filename', 'sim_id', 'save_data', 'data_dirname',
-                     'only_test_params']
+    # Non-existing parameter file
+    params_file = tmpdir.join("nonexist.py")
+    argv = ["model.py", "-p", str(params_file)]
+    monkeypatch.setattr(sys, 'argv', argv)
 
-    options = parse_args(allow_options)
-    assert options.params_filename == "params.py"
-    assert options.sim_id == None
-    assert options.save_data == False
-    assert options.only_test_params == True
+    with pytest.raises(SystemExit):
+        options = parse_args(allow_options)
+
+    # Existing parameter file with no access
+    params_file = tmpdir.join("noaccess.py")
+    params_file.write("")
+    os.chmod(str(params_file), 0)
+    argv = ["model.py", "-p", str(params_file)]
+    monkeypatch.setattr(sys, 'argv', argv)
+
+    with pytest.raises(SystemExit):
+        options = parse_args(allow_options)
 
 
 def test_data_dirname_option(monkeypatch, tmpdir):
@@ -108,7 +144,7 @@ def test_unsupported_option(monkeypatch, allow_options):
 
 def test_unrecognized_args(monkeypatch):
     # Option supported, but not allowed
-    argv = ["model.py", "-p", "params.py", "-t"]
+    argv = ["model.py", "-t"]
     monkeypatch.setattr(sys, 'argv', argv)
     allow_options = ['params_filename', 'sim_id', 'save_data']
 
