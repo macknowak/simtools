@@ -6,7 +6,8 @@ import time
 
 import pytest
 
-from simtools.simrun import generate_sim_id, generate_sim_dirname, make_dirs
+from simtools.simrun import (generate_sim_id, generate_sim_dirname, make_dirs,
+                             norm_executable)
 
 
 @pytest.fixture
@@ -58,3 +59,33 @@ def test_make_dirs(tmpdir):
         sim_path = make_dirs(sim_dirname, sim_master_dirname, data_dirname)
         assert sim_path == os.path.join(sim_master_dirname, sim_dirname)
         assert os.path.isdir(os.path.join(sim_path, data_dirname))
+
+
+@pytest.mark.parametrize('executable, normal_executable', [
+    ("/myexec", ["/myexec"]),
+    ("/myexec -x", ["/myexec", "-x"])])
+def test_norm_executable_abs(executable, normal_executable):
+    normalized_executable = norm_executable(executable)
+    assert normalized_executable == normal_executable
+
+
+@pytest.mark.parametrize('executable, normal_executable', [
+    ("myexec", ["myexec"]),
+    ("myexec -x", ["myexec", "-x"])])
+def test_norm_executable_rel_nonexist(tmpdir, executable, normal_executable):
+    with tmpdir.as_cwd():
+        normalized_executable = norm_executable(executable)
+        assert normalized_executable == normal_executable
+
+
+@pytest.mark.parametrize('executable, normal_executable', [
+    ("myexec", [""]),
+    ("myexec -x", ["", "-x"])])
+def test_norm_executable_rel_exist(tmpdir, executable, normal_executable):
+    myexec = tmpdir.join("myexec")
+    myexec.write("")
+    normal_executable[0] = str(myexec)
+
+    with tmpdir.as_cwd():
+        normalized_executable = norm_executable(executable)
+        assert normalized_executable == normal_executable

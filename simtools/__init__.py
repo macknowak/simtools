@@ -10,6 +10,7 @@ __author__ = "Przemyslaw (Mack) Nowak"
 
 from .argparse import parse_args
 from .params import load_params, Params
-from .simrun import generate_sim_dirname, generate_sim_id, make_dirs, run_sim
+from .simrun import (generate_sim_dirname, generate_sim_id, make_dirs,
+                     norm_executable, run_sim)
 from .utils import save_versions
 from . import argparse, params, simrun, utils

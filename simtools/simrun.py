@@ -6,10 +6,12 @@ Simulation launch services provide the following functionality:
 - generating simulation id based on local date and time;
 - generating simulation directory name;
 - creating directory structure for simulation;
+- normalizing the format of executable;
 - launching simulation.
 """
 
 import os
+import shlex
 import subprocess
 import time
 
@@ -71,3 +73,15 @@ def run_sim(model_filename, params_filename=None, sim_id=None,
         cmd += [options['data_dirname']['arg'][0], data_dirname]
     cmd.append(options['save_data']['arg'][0])
     return subprocess.call(cmd)
+
+
+def norm_executable(executable):
+    """Normalize the format of executable."""
+    # Split executable name and arguments
+    executable = shlex.split(executable)
+
+    # If necessary, determine the absolute path to the executable
+    if not os.path.isabs(executable[0]) and os.path.isfile(executable[0]):
+        executable[0] = os.path.abspath(executable[0])
+
+    return executable
