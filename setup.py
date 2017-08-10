@@ -19,7 +19,12 @@ setup(
     description="Python tools for simulation management",
     url="https://github.com/macknowak/simtools",
     license="GNU General Public License v3 or later (GPLv3+)",
-    packages=['simtools'],
+    packages=['simtools', 'simtools.bin'],
+    entry_points={
+        'console_scripts': [
+            'runsim = simtools.bin.runsim:main'
+            ]
+        },
     setup_requires=['pytest-runner'] if testing else [],
     tests_require=['pytest'],
     classifiers=[

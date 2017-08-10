@@ -11,6 +11,7 @@
 - Added generating simulation id based on local date and time.
 - Added creating directory structure for simulation.
 - Added launching simulation.
+- Added simulation launcher console script.
 - Added hierarchy of SimTools exceptions.
 - Added package installer.
 - Added package description.
