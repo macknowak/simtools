@@ -39,10 +39,8 @@ def test_generate_sim_dirname(local_time):
     assert sim_dirname == "_20001030_070809"
 
 
-def test_make_dirs(tmpdir):
+def test_make_dirs_nonexist(tmpdir):
     sim_dirname = "20001030_070809"
-    sim_master_dirname = "simulations"
-    data_dirname = "data"
 
     with tmpdir.as_cwd():
         # No simulation master directory, no data directory
@@ -51,14 +49,32 @@ def test_make_dirs(tmpdir):
         assert os.path.isdir(sim_path)
 
         # Simulation master directory but no data directory
+        sim_master_dirname = "simulations1"
         sim_path = make_dirs(sim_dirname, sim_master_dirname)
         assert sim_path == os.path.join(sim_master_dirname, sim_dirname)
         assert os.path.isdir(sim_path)
 
         # Simulation master directory and data directory
+        sim_master_dirname = "simulations2"
+        data_dirname = "data"
         sim_path = make_dirs(sim_dirname, sim_master_dirname, data_dirname)
         assert sim_path == os.path.join(sim_master_dirname, sim_dirname)
         assert os.path.isdir(os.path.join(sim_path, data_dirname))
+
+
+def test_make_dirs_exist(tmpdir):
+    sim_dirname = "20001030_070809"
+    tmpdir.mkdir(sim_dirname)
+
+    with tmpdir.as_cwd():
+        # No data directory
+        with pytest.raises(OSError):
+            sim_path = make_dirs(sim_dirname)
+
+        # Data directory
+        data_dirname = "data"
+        with pytest.raises(OSError):
+            sim_path = make_dirs(sim_dirname, data_dirname=data_dirname)
 
 
 @pytest.mark.parametrize('executable, normal_executable', [

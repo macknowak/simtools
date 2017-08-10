@@ -37,12 +37,14 @@ def generate_sim_dirname(tmp=False, sim_id=None):
 
 def make_dirs(sim_dirname, sim_master_dirname=None, data_dirname=None):
     """Create directory structure for simulation."""
-    if sim_master_dirname is None:
-        sim_master_dirname = ""
-    if data_dirname is None:
-        data_dirname = ""
-    sim_path = os.path.join(sim_master_dirname, sim_dirname)
-    os.makedirs(os.path.join(sim_path, data_dirname))
+    if sim_master_dirname is not None:
+        sim_path = os.path.join(sim_master_dirname, sim_dirname)
+    else:
+        sim_path = sim_dirname
+    os.makedirs(sim_path)  # raises an error if simulation directory already
+                           # exists
+    if data_dirname is not None:
+        os.makedirs(os.path.join(sim_path, data_dirname))
     return sim_path
 
 
