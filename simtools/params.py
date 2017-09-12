@@ -10,6 +10,7 @@ Parameter services provide the following functionality:
 
 import json
 import sys
+import types
 
 from simtools.base import Dict
 from simtools.exceptions import ParamFileError
@@ -80,6 +81,7 @@ class Params(Dict):
     def _load_py(self, filename):
         """Load parameters from a Python file."""
         with open(filename) as params_file:
+            # Execute Python code from the file to populate local namespace
             new_params = {}
             try:
                 exec(params_file.read(), globals(), new_params)
@@ -91,6 +93,13 @@ class Params(Dict):
                 del exc_traceback
                 raise ParamFileError(filename=filename, lineno=lineno,
                                      error_msg=exc_value.args[0])
+
+            # Remove modules from the local namespace
+            for paramname, paramval in new_params.items():
+                if type(paramval) is types.ModuleType:
+                    del new_params[paramname]
+
+            # Update parameters
             self.update(new_params)
 
 

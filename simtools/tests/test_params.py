@@ -106,6 +106,8 @@ p8 = [x+x for x in [1, 2, 3]]  # list comprehension
     assert p.p6 == (1, 2.5, math.pi, "abc")
     assert p.p7 == [1, 2.5, math.pi, "abc"]
     assert p.p8 == [2, 4, 6]
+    with pytest.raises(AttributeError):
+        p.math
 
     # Syntax error
     params_file = tmpdir.join("params_syntax.py")
