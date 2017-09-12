@@ -5,6 +5,7 @@
 ### Added
 
 - Added parsing command line arguments.
+- Added loading parameters from a JSON file.
 - Added loading parameters from a Python file.
 - Added saving parameters to a JSON file.
 - Added saving software versions to a JSON file.

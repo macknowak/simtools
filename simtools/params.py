@@ -3,6 +3,7 @@
 
 Parameter services provide the following functionality:
 
+- loading parameters from a JSON file;
 - loading parameters from a Python file;
 - saving parameters to a JSON file.
 """
@@ -19,24 +20,12 @@ class Params(Dict):
 
     def load(self, filename):
         """Load parameters from a file."""
-        # Check if the file format represents Python code
-        if not filename.endswith(".py"):
+        if filename.endswith(".json"):
+            self._load_json(filename)
+        elif filename.endswith(".py"):
+            self._load_py(filename)
+        else:
             raise ValueError("File format is not supported.")
-
-        # Execute Python code from the file and update parameters accordingly
-        with open(filename) as params_file:
-            new_params = {}
-            try:
-                exec(params_file.read(), globals(), new_params)
-            except Exception:
-                _, exc_value, exc_traceback = sys.exc_info()
-                lineno = (exc_traceback.tb_next.tb_lineno
-                          if hasattr(exc_traceback.tb_next, 'tb_lineno')
-                          else None)
-                del exc_traceback
-                raise ParamFileError(filename=filename, lineno=lineno,
-                                     error_msg=exc_value.args[0])
-            self.update(new_params)
 
     def save(self, filename, save_params=None, **kwargs):
         """Save parameters to a file."""
@@ -78,6 +67,31 @@ class Params(Dict):
         # Save parameters to a JSON file
         with open(filename, 'w') as params_file:
             json.dump(params, params_file, indent=indent, **kwargs)
+
+    def _load_json(self, filename):
+        """Load parameters from a JSON file."""
+        with open(filename) as params_file:
+            try:
+                new_params = json.load(params_file)
+            except ValueError as e:
+                raise ParamFileError(filename=filename, error_msg=e.args[0])
+            self.update(new_params)
+
+    def _load_py(self, filename):
+        """Load parameters from a Python file."""
+        with open(filename) as params_file:
+            new_params = {}
+            try:
+                exec(params_file.read(), globals(), new_params)
+            except Exception:
+                _, exc_value, exc_traceback = sys.exc_info()
+                lineno = (exc_traceback.tb_next.tb_lineno
+                          if hasattr(exc_traceback.tb_next, 'tb_lineno')
+                          else None)
+                del exc_traceback
+                raise ParamFileError(filename=filename, lineno=lineno,
+                                     error_msg=exc_value.args[0])
+            self.update(new_params)
 
 
 def load_params(filename):
