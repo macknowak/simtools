@@ -84,22 +84,28 @@ def test_params_load_py(tmpdir):
     # Correct
     params_file = tmpdir.join("params_ok.py")
     params_file.write(
-"""p1 = 1
-p2 = "abc"
-p3 = {'a': 1, 'b': 2}
-p4 = 1, 2, 3
-p5 = [1, 2, 3]
-p6 = [x+x for x in p5]
+"""import math
+
+p1 = 1
+p2 = 2.5
+p3 = math.pi
+p4 = "abc"
+p5 = {'a': 1, 'b': 2.5, 'c': math.pi, 'd': "abc"}
+p6 = 1, 2.5, math.pi, "abc"
+p7 = [1, 2.5, math.pi, "abc"]
+p8 = [x+x for x in [1, 2, 3]]  # list comprehension
 """)
     p = Params()
 
     p.load(str(params_file))
     assert p.p1 == 1
-    assert p.p2 == "abc"
-    assert p.p3 == {'a': 1, 'b': 2}
-    assert p.p4 == (1, 2, 3)
-    assert p.p5 == [1, 2, 3]
-    assert p.p6 == [2, 4, 6]
+    assert p.p2 == 2.5
+    assert p.p3 == math.pi
+    assert p.p4 == "abc"
+    assert p.p5 == {'a': 1, 'b': 2.5, 'c': math.pi, 'd': "abc"}
+    assert p.p6 == (1, 2.5, math.pi, "abc")
+    assert p.p7 == [1, 2.5, math.pi, "abc"]
+    assert p.p8 == [2, 4, 6]
 
     # Syntax error
     params_file = tmpdir.join("params_syntax.py")
