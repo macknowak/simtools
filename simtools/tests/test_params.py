@@ -7,7 +7,7 @@ import math
 import pytest
 
 from simtools.exceptions import ParamFileError
-from simtools.params import Params
+from simtools.params import ParamSets, Params
 
 
 @pytest.fixture
@@ -242,3 +242,49 @@ def test_params_save_forbid_kwargs(tmpdir, params, kwargs):
 
     with pytest.raises(TypeError):
         params.save(str(params_file), **kwargs)
+
+
+def test_paramsets_empty():
+    paramsets = ParamSets()
+    assert len(paramsets) == 0
+    with pytest.raises(IndexError):
+        paramsets[0]
+    with pytest.raises(StopIteration):
+        iter(paramsets).next()
+    with pytest.raises(StopIteration):
+        reversed(paramsets).next()
+
+
+def test_paramsets_load_params(tmpdir):
+    params_file_json = tmpdir.join("params.json")
+    params_file_json.write(
+"""{
+    "p1": 1,
+    "p2": 2.5,
+    "p3": "abc"
+}""")
+    params_file_py = tmpdir.join("params.py")
+    params_file_py.write(
+"""p1 = 1
+p2 = 2.5
+p3 = "abc"
+""")
+    paramsets = ParamSets()
+
+    # First parameter set (from a JSON file)
+    paramsets.load_params(str(params_file_json))
+    assert len(paramsets) == 1
+    assert paramsets[0].p1 == 1
+    assert paramsets[0].p2 == 2.5
+    assert paramsets[0].p3 == "abc"
+    with pytest.raises(IndexError):
+        paramsets[1]
+
+    # Second parameter set (from a Python file)
+    paramsets.load_params(str(params_file_py))
+    assert len(paramsets) == 2
+    assert paramsets[1].p1 == 1
+    assert paramsets[1].p2 == 2.5
+    assert paramsets[1].p3 == "abc"
+    with pytest.raises(IndexError):
+        paramsets[2]

@@ -5,9 +5,11 @@ Parameter services provide the following functionality:
 
 - loading parameters from a JSON file;
 - loading parameters from a Python file;
-- saving parameters to a JSON file.
+- saving parameters to a JSON file;
+- loading parameters from a file as a parameter set.
 """
 
+import collections
 import json
 import sys
 import types
@@ -108,3 +110,34 @@ def load_params(filename):
     params = Params()
     params.load(filename)
     return params
+
+
+class ParamSets(collections.Sequence):
+    """Container storing parameter sets."""
+
+    def __init__(self):
+        self._paramsets = []
+
+    def __contains__(self, item):
+        """Check if specific parameter set is stored."""
+        return item in self._paramsets
+
+    def __getitem__(self, key):
+        """Retrieve parameter set."""
+        return self._paramsets[key]
+
+    def __iter__(self):
+        """Retrieve iterator over parameter sets."""
+        return iter(self._paramsets)
+
+    def __len__(self):
+        """Retrieve number of parameter sets."""
+        return len(self._paramsets)
+
+    def __reversed__(self):
+        """Retrieve reverse iterator over parameter sets."""
+        return reversed(self._paramsets)
+
+    def load_params(self, filename):
+        """Load parameters from a file as a parameter set."""
+        self._paramsets.append(load_params(filename))

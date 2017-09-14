@@ -8,6 +8,7 @@
 - Added loading parameters from a JSON file.
 - Added loading parameters from a Python file.
 - Added saving parameters to a JSON file.
+- Added loading parameters from a file as a parameter set.
 - Added saving software versions to a JSON file.
 - Added generating simulation id based on local date and time.
 - Added creating directory structure for simulation.
