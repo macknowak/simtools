@@ -112,19 +112,29 @@ def load_params(filename):
     return params
 
 
-class ParamSets(collections.Sequence):
+class ParamSets(collections.MutableSequence):
     """Container storing parameter sets."""
 
     def __init__(self):
         self._paramsets = []
 
-    def __contains__(self, item):
+    def __contains__(self, x):
         """Check if specific parameter set is stored."""
-        return item in self._paramsets
+        return x in self._paramsets
 
-    def __getitem__(self, key):
-        """Retrieve parameter set."""
-        return self._paramsets[key]
+    def __getitem__(self, index):
+        """Retrieve parameter set at specific index."""
+        return self._paramsets[index]
+
+    def __setitem__(self, index, value):
+        """Set parameter set at specific index."""
+        if not isinstance(value, Params):
+            raise TypeError("Type is not Params.")
+        self._paramsets[index] = value
+
+    def __delitem__(self, index):
+        """Delete parameter set at specific index."""
+        del self._paramsets[index]
 
     def __iter__(self):
         """Retrieve iterator over parameter sets."""
@@ -137,6 +147,12 @@ class ParamSets(collections.Sequence):
     def __reversed__(self):
         """Retrieve reverse iterator over parameter sets."""
         return reversed(self._paramsets)
+
+    def insert(self, index, value):
+        """Insert parameter set before specific index."""
+        if not isinstance(value, Params):
+            raise TypeError("Type is not Params.")
+        self._paramsets.insert(index, value)
 
     def load_params(self, filename):
         """Load parameters from a file as a parameter set."""

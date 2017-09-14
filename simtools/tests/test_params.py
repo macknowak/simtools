@@ -244,7 +244,8 @@ def test_params_save_forbid_kwargs(tmpdir, params, kwargs):
         params.save(str(params_file), **kwargs)
 
 
-def test_paramsets_empty():
+def test_paramsets_mutable_sequence():
+    # Empty
     paramsets = ParamSets()
     assert len(paramsets) == 0
     with pytest.raises(IndexError):
@@ -253,6 +254,65 @@ def test_paramsets_empty():
         iter(paramsets).next()
     with pytest.raises(StopIteration):
         reversed(paramsets).next()
+
+    # Append
+    p0 = Params({'p1': 1, 'p2': 2.5, 'p3': "abc"})
+    p1 = Params({'p1': 10, 'p2': 20.5, 'p3': "def"})
+
+    paramsets.append(p0)
+    assert len(paramsets) == 1
+    assert p0 in paramsets
+    assert paramsets[0] == p0
+    assert p1 not in paramsets
+
+    paramsets.append(p1)
+    assert len(paramsets) == 2
+    assert p1 in paramsets
+    assert paramsets[1] == p1
+
+    # Insert
+    paramsets.insert(0, p1)
+    assert len(paramsets) == 3
+    assert paramsets[0] == p1
+    assert paramsets[1] == p0
+    assert paramsets[2] == p1
+
+    with pytest.raises(TypeError):
+        paramsets.insert(0, "p1 = 1")
+
+    # Set
+    paramsets[0] = p0
+    assert len(paramsets) == 3
+    assert paramsets[0] == p0
+    assert paramsets[1] == p0
+    assert paramsets[2] == p1
+
+    with pytest.raises(IndexError):
+        paramsets[3] = p0
+
+    with pytest.raises(TypeError):
+        paramsets[0] = "p1 = 1"
+
+    # Delete
+    del paramsets[1]
+    assert len(paramsets) == 2
+    assert paramsets[0] == p0
+    assert paramsets[1] == p1
+
+    with pytest.raises(IndexError):
+        del paramsets[2]
+
+    # Iterator
+    paramsets_list = [p0, p1]
+
+    for paramset, paramset_l in zip(paramsets, paramsets_list):
+        assert paramset == paramset_l
+
+    # Reverse iterator
+    paramsets_list = [p1, p0]
+
+    for paramset, paramset_l in zip(reversed(paramsets), paramsets_list):
+        assert paramset == paramset_l
 
 
 def test_paramsets_load_params(tmpdir):
