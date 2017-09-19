@@ -17,9 +17,10 @@ def params():
     p.p2 = 2.5
     p.p3 = math.pi
     p.p4 = "abc"
-    p.p5 = {'a': 1, 'b': 2.5, 'c': math.pi, 'd': "abc"}
-    p.p6 = 1, 2.5, math.pi, "abc"
-    p.p7 = [1, 2.5, math.pi, "abc"]
+    p.p5 = None
+    p.p6 = {'a': 1, 'b': 2.5, 'c': math.pi, 'd': "abc", 'e': None}
+    p.p7 = 1, 2.5, math.pi, "abc", None
+    p.p8 = [1, 2.5, math.pi, "abc", None]
     return p
 
 
@@ -32,17 +33,20 @@ def test_params_load_json(tmpdir):
     "p2": 2.5,
     "p3": 3.141592653589793,
     "p4": "abc",
-    "p5": {
+    "p5": null,
+    "p6": {
         "a": 1,
         "b": 2.5,
         "c": 3.141592653589793,
-        "d": "abc"
+        "d": "abc",
+        "e": null
     },
-    "p6": [
+    "p7": [
         1,
         2.5,
         3.141592653589793,
-        "abc"
+        "abc",
+        null
     ]
 }""")
     p = Params()
@@ -52,8 +56,9 @@ def test_params_load_json(tmpdir):
     assert p.p2 == 2.5
     assert p.p3 == math.pi
     assert p.p4 == "abc"
-    assert p.p5 == {'a': 1, 'b': 2.5, 'c': math.pi, 'd': "abc"}
-    assert p.p6 == [1, 2.5, math.pi, "abc"]
+    assert p.p5 == None
+    assert p.p6 == {'a': 1, 'b': 2.5, 'c': math.pi, 'd': "abc", 'e': None}
+    assert p.p7 == [1, 2.5, math.pi, "abc", None]
 
     # Syntax error
     params_file = tmpdir.join("params_syntax.json")
@@ -62,17 +67,20 @@ def test_params_load_json(tmpdir):
 "p2": 2.5,
 "p3": 3.141592653589793,
 "p4": "abc",
-"p5": {
+"p5": null,
+"p6": {
     "a": 1,
     "b": 2.5,
     "c": 3.141592653589793,
-    "d": "abc"
+    "d": "abc",
+    "e": null
 },
-"p6": [
+"p7": [
     1,
     2.5,
     3.141592653589793,
-    "abc"
+    "abc",
+    null
 ]""")
     p = Params()
 
@@ -90,10 +98,11 @@ p1 = 1
 p2 = 2.5
 p3 = math.pi
 p4 = "abc"
-p5 = {'a': 1, 'b': 2.5, 'c': math.pi, 'd': "abc"}
-p6 = 1, 2.5, math.pi, "abc"
-p7 = [1, 2.5, math.pi, "abc"]
-p8 = [x+x for x in [1, 2, 3]]  # list comprehension
+p5 = None
+p6 = {'a': 1, 'b': 2.5, 'c': math.pi, 'd': "abc", 'e': None}
+p7 = 1, 2.5, math.pi, "abc", None
+p8 = [1, 2.5, math.pi, "abc", None]
+p9 = [x+x for x in [1, 2, 3]]  # list comprehension
 """)
     p = Params()
 
@@ -102,10 +111,11 @@ p8 = [x+x for x in [1, 2, 3]]  # list comprehension
     assert p.p2 == 2.5
     assert p.p3 == math.pi
     assert p.p4 == "abc"
-    assert p.p5 == {'a': 1, 'b': 2.5, 'c': math.pi, 'd': "abc"}
-    assert p.p6 == (1, 2.5, math.pi, "abc")
-    assert p.p7 == [1, 2.5, math.pi, "abc"]
-    assert p.p8 == [2, 4, 6]
+    assert p.p5 == None
+    assert p.p6 == {'a': 1, 'b': 2.5, 'c': math.pi, 'd': "abc", 'e': None}
+    assert p.p7 == (1, 2.5, math.pi, "abc", None)
+    assert p.p8 == [1, 2.5, math.pi, "abc", None]
+    assert p.p9 == [2, 4, 6]
     with pytest.raises(AttributeError):
         p.math
 
@@ -156,31 +166,31 @@ def test_params_save_default(tmpdir, params):
 
     params.save(str(params_file))
     params_json = json.load(params_file)
-    for p in ('p1', 'p2', 'p3', 'p4', 'p5', 'p7'):
+    for p in ('p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'p8'):
         assert params_json[p] == params[p]
-    assert params_json['p6'] == list(params['p6'])
+    assert params_json['p7'] == list(params['p7'])
 
 
 def test_params_save_save_params(tmpdir, params):
     # All parameters
     params_file = tmpdir.join("params_all.json")
-    save_params = ['p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'p7']
+    save_params = ['p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'p7', 'p8']
 
     params.save(str(params_file), save_params)
     params_json = json.load(params_file)
-    for p in ('p1', 'p2', 'p3', 'p4', 'p5', 'p7'):
+    for p in ('p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'p8'):
         assert params_json[p] == params[p]
-    assert params_json['p6'] == list(params['p6'])
+    assert params_json['p7'] == list(params['p7'])
 
     # Some parameters
     params_file = tmpdir.join("params_some.json")
-    save_params = ['p1', 'p4', 'p7']
+    save_params = ['p1', 'p4', 'p8']
 
     params.save(str(params_file), save_params)
     params_json = json.load(params_file)
-    for p in ('p1', 'p4', 'p7'):
+    for p in ('p1', 'p4', 'p8'):
         assert params_json[p] == params[p]
-    for p in ('p2', 'p3', 'p5', 'p6'):
+    for p in ('p2', 'p3', 'p5', 'p6', 'p7'):
         with pytest.raises(KeyError):
             assert params_json[p] == params[p]
 
@@ -193,7 +203,7 @@ def test_params_save_save_params(tmpdir, params):
 
     # String
     params_file = tmpdir.join("params_string.json")
-    save_params = "p1, p2, p3, p4, p5, p6, p7"
+    save_params = "p1, p2, p3, p4, p5, p6, p7, p8"
 
     with pytest.raises(TypeError):
         params.save(str(params_file), save_params)
@@ -213,7 +223,7 @@ def test_params_save_indent(tmpdir, params):
     params.save(str(params_file), indent=4)
     n_bytes4 = params_file.size()
     n_lines4 = len(params_file.readlines())
-    assert n_lines4 == 24
+    assert n_lines4 == 28
 
     # Indent = 2
     params_file = tmpdir.join("params_indent2.json")
@@ -222,7 +232,7 @@ def test_params_save_indent(tmpdir, params):
     n_bytes2 = params_file.size()
     assert n_bytes2 < n_bytes4
     n_lines2 = len(params_file.readlines())
-    assert n_lines2 == 24
+    assert n_lines2 == 28
 
     # Indent = None
     params_file = tmpdir.join("params_indentnone.json")
@@ -256,8 +266,8 @@ def test_paramsets_mutable_sequence():
         reversed(paramsets).next()
 
     # Append
-    p0 = Params({'p1': 1, 'p2': 2.5, 'p3': "abc"})
-    p1 = Params({'p1': 10, 'p2': 20.5, 'p3': "def"})
+    p0 = Params({'p1': 1, 'p2': 2.5, 'p3': "abc", 'p4': None})
+    p1 = Params({'p1': 10, 'p2': 20.5, 'p3': "def", 'p4': None})
 
     paramsets.append(p0)
     assert len(paramsets) == 1
@@ -321,13 +331,15 @@ def test_paramsets_load_params(tmpdir):
 """{
     "p1": 1,
     "p2": 2.5,
-    "p3": "abc"
+    "p3": "abc",
+    "p4": null
 }""")
     params_file_py = tmpdir.join("params.py")
     params_file_py.write(
 """p1 = 1
 p2 = 2.5
 p3 = "abc"
+p4 = None
 """)
     paramsets = ParamSets()
 
@@ -337,6 +349,7 @@ p3 = "abc"
     assert paramsets[0].p1 == 1
     assert paramsets[0].p2 == 2.5
     assert paramsets[0].p3 == "abc"
+    assert paramsets[0].p4 == None
     with pytest.raises(IndexError):
         paramsets[1]
 
@@ -346,5 +359,6 @@ p3 = "abc"
     assert paramsets[1].p1 == 1
     assert paramsets[1].p2 == 2.5
     assert paramsets[1].p3 == "abc"
+    assert paramsets[0].p4 == None
     with pytest.raises(IndexError):
         paramsets[2]
