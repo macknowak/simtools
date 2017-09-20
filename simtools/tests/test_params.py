@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Unit tests of parameter services."""
 
+import csv
 import json
 import math
 
@@ -362,3 +363,124 @@ p4 = None
     assert paramsets[0].p4 == None
     with pytest.raises(IndexError):
         paramsets[2]
+
+
+def test_paramsets_save(tmpdir):
+    # Default (with header and without record numbers)
+    paramsets_file = tmpdir.join("paramsets_default.csv")
+    p0 = Params({'p1': 1, 'p2': 2.5, 'p3': "abc", 'p4': "", 'p5': None})
+    p1 = Params({'p1': None, 'p2': 20.5, 'p3': "", 'p4': "def", 'p5': 10})
+    paramsets = ParamSets()
+    paramsets.append(p0)
+    paramsets.append(p1)
+
+    paramsets.save(str(paramsets_file), ['p1', 'p2', 'p3', 'p4', 'p5'])
+    assert paramsets[0] == p0
+    assert paramsets[1] == p1
+    with paramsets_file.open() as paramsets_file:
+        csv_reader = csv.DictReader(paramsets_file, dialect='excel-tab')
+        for csv_row, paramset in zip(csv_reader, paramsets):
+            for p in ('p1', 'p2', 'p3', 'p4', 'p5'):
+                assert csv_row[p] == str(paramset[p])
+
+    # With header and with record numbers
+    paramsets_file = tmpdir.join("paramsets_head_num.csv")
+
+    paramsets.save(str(paramsets_file), ['p1', 'p2', 'p3', 'p4', 'p5'],
+                   with_header=True, with_numbers=True)
+    assert paramsets[0] == p0
+    assert paramsets[1] == p1
+    with paramsets_file.open() as paramsets_file:
+        csv_reader = csv.DictReader(paramsets_file, dialect='excel-tab')
+        for r, (csv_row, paramset) in enumerate(zip(csv_reader, paramsets),
+                                                start=1):
+            assert csv_row['#'] == str(r)
+            for p in ('p1', 'p2', 'p3', 'p4', 'p5'):
+                assert csv_row[p] == str(paramset[p])
+
+    # Without header and without record numbers
+    paramsets_file = tmpdir.join("paramsets.csv")
+
+    paramsets.save(str(paramsets_file), ['p1', 'p2', 'p3', 'p4', 'p5'],
+                   with_header=False, with_numbers=False)
+    assert paramsets[0] == p0
+    assert paramsets[1] == p1
+    with paramsets_file.open() as paramsets_file:
+        csv_reader = csv.DictReader(paramsets_file,
+                                    ['p1', 'p2', 'p3', 'p4', 'p5'],
+                                    dialect='excel-tab')
+        for csv_row, paramset in zip(csv_reader, paramsets):
+            for p in ('p1', 'p2', 'p3', 'p4', 'p5'):
+                assert csv_row[p] == str(paramset[p])
+
+    # Without header and with record numbers
+    paramsets_file = tmpdir.join("paramsets_num.csv")
+
+    paramsets.save(str(paramsets_file), ['p1', 'p2', 'p3', 'p4', 'p5'],
+                   with_header=False, with_numbers=True)
+    assert paramsets[0] == p0
+    assert paramsets[1] == p1
+    with paramsets_file.open() as paramsets_file:
+        csv_reader = csv.DictReader(paramsets_file,
+                                    ['#', 'p1', 'p2', 'p3', 'p4', 'p5'],
+                                    dialect='excel-tab')
+        for r, (csv_row, paramset) in enumerate(zip(csv_reader, paramsets),
+                                                start=1):
+            assert csv_row['#'] == str(r)
+            for p in ('p1', 'p2', 'p3', 'p4', 'p5'):
+                assert csv_row[p] == str(paramset[p])
+
+
+def test_paramsets_save_paramnames(tmpdir):
+    # All parameters passed as a tuple, with record numbers
+    paramsets_file = tmpdir.join("paramsets_tuple_num.csv")
+    p0 = Params({'p1': 1, 'p2': 2.5, 'p3': "abc", 'p4': None})
+    p1 = Params({'p1': 10, 'p2': 20.5, 'p3': "def", 'p4': None})
+    paramsets = ParamSets()
+    paramsets.append(p0)
+    paramsets.append(p1)
+    paramnames = 'p1', 'p2', 'p3', 'p4'
+
+    paramsets.save(str(paramsets_file), paramnames, with_numbers=True)
+    with paramsets_file.open() as paramsets_file:
+        csv_reader = csv.DictReader(paramsets_file, dialect='excel-tab')
+        for r, (csv_row, paramset) in enumerate(zip(csv_reader, paramsets),
+                                                start=1):
+            assert csv_row['#'] == str(r)
+            for p in ('p1', 'p2', 'p3', 'p4'):
+                assert csv_row[p] == str(paramset[p])
+
+    # Some parameters passed as a tuple
+    paramsets_file = tmpdir.join("paramsets_some.csv")
+    paramnames = 'p1', 'p4'
+
+    paramsets.save(str(paramsets_file), paramnames)
+    with paramsets_file.open() as paramsets_file:
+        csv_reader = csv.DictReader(paramsets_file, dialect='excel-tab')
+        for csv_row, paramset in zip(csv_reader, paramsets):
+            for p in ('p1', 'p4'):
+                assert csv_row[p] == str(paramset[p])
+            for p in ('p2', 'p3'):
+                with pytest.raises(KeyError):
+                    assert csv_row[p] == str(paramset[p])
+
+    # Not iterable
+    paramsets_file = tmpdir.join("paramsets_notiter.csv")
+    paramnames = 1
+
+    with pytest.raises(TypeError):
+        paramsets.save(str(paramsets_file), paramnames)
+
+    # String
+    paramsets_file = tmpdir.join("paramsets_string.csv")
+    paramnames = "p1, p2, p3, p4"
+
+    with pytest.raises(TypeError):
+        paramsets.save(str(paramsets_file), paramnames)
+
+    # Non-existing parameter
+    paramsets_file = tmpdir.join("paramsets_nonexist.csv")
+    paramnames = ['p1', 'p999']
+
+    with pytest.raises(ValueError):
+        paramsets.save(str(paramsets_file), paramnames)

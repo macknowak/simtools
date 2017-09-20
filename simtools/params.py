@@ -6,10 +6,12 @@ Parameter services provide the following functionality:
 - loading parameters from a JSON file;
 - loading parameters from a Python file;
 - saving parameters to a JSON file;
-- loading parameters from a file as a parameter set.
+- loading parameters from a file as a parameter set;
+- saving parameter sets to a CSV file.
 """
 
 import collections
+import csv
 import json
 import sys
 import types
@@ -157,3 +159,47 @@ class ParamSets(collections.MutableSequence):
     def load_params(self, filename):
         """Load parameters from a file as a parameter set."""
         self._paramsets.append(load_params(filename))
+
+    def save(self, filename, paramnames, with_header=True, with_numbers=False,
+             dialect='excel-tab'):
+        """Save parameter sets to a file."""
+        # Validate names of parameters to be saved
+        try:
+            iter(paramnames)
+        except TypeError:
+            raise TypeError("'paramnames' is not iterable.")
+        try:
+            basestring
+        except NameError:
+            basestring = str
+        if isinstance(paramnames, basestring):
+            raise TypeError("'paramnames' is a string.")
+        for p, paramset in enumerate(self._paramsets):
+            for paramname in paramnames:
+                if paramname not in paramset:
+                    raise ValueError("Selected parameter '{0}' is not found "
+                                     "at index {1}.".format(paramname, p))
+
+        # If necessary, create a field for record numbers
+        if with_numbers:
+            fieldnames = ['#']
+            fieldnames.extend(paramnames)
+        else:
+            fieldnames = paramnames
+
+        # Save parameter sets to a CSV file
+        with open(filename, 'wb') as paramsets_file:
+            csv_writer = csv.DictWriter(paramsets_file, fieldnames,
+                                        extrasaction='ignore', dialect=dialect)
+            if with_header:
+                csv_writer.writeheader()
+            for p, paramset in enumerate(self._paramsets):
+                csv_row = paramset.copy()
+                for paramname, paramval in csv_row.items():
+                    # If parameter value is None, write it explicitly (by
+                    # default, None is written as the empty string)
+                    if paramval is None:
+                        csv_row[paramname] = str(paramval)
+                if with_numbers:
+                    csv_row['#'] = p + 1
+                csv_writer.writerow(csv_row)
