@@ -32,22 +32,22 @@ class Params(Dict):
         else:
             raise ValueError("File format is not supported.")
 
-    def save(self, filename, save_params=None, **kwargs):
+    def save(self, filename, paramnames=None, **kwargs):
         """Save parameters to a file."""
         DEFAULT_INDENT = 4
 
-        # If necessary, validate parameters to be saved
-        if save_params is not None:
+        # If necessary, validate names of parameters to be saved
+        if paramnames is not None:
             try:
-                iter(save_params)
+                iter(paramnames)
             except TypeError:
-                raise TypeError("'save_params' is not iterable.")
+                raise TypeError("'paramnames' is not iterable.")
             try:
                 basestring
             except NameError:
                 basestring = str
-            if isinstance(save_params, basestring):
-                raise TypeError("'save_params' is a string.")
+            if isinstance(paramnames, basestring):
+                raise TypeError("'paramnames' is a string.")
 
         # If necessary, validate extra keyword arguments
         if kwargs:
@@ -57,9 +57,9 @@ class Params(Dict):
                                     "argument '{}'.".format(arg))
 
         # Determine parameters to be saved
-        if save_params is not None:
+        if paramnames is not None:
             try:
-                params = {p: self[p] for p in save_params}
+                params = {p: self[p] for p in paramnames}
             except KeyError as e:
                 raise ValueError(
                     "Selected parameter '{}' is not found.".format(e.args[0]))

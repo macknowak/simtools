@@ -172,12 +172,12 @@ def test_params_save_default(tmpdir, params):
     assert params_json['p7'] == list(params['p7'])
 
 
-def test_params_save_save_params(tmpdir, params):
+def test_params_save_paramnames(tmpdir, params):
     # All parameters
     params_file = tmpdir.join("params_all.json")
-    save_params = ['p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'p7', 'p8']
+    paramnames = ['p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'p7', 'p8']
 
-    params.save(str(params_file), save_params)
+    params.save(str(params_file), paramnames)
     params_json = json.load(params_file)
     for p in ('p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'p8'):
         assert params_json[p] == params[p]
@@ -185,9 +185,9 @@ def test_params_save_save_params(tmpdir, params):
 
     # Some parameters
     params_file = tmpdir.join("params_some.json")
-    save_params = ['p1', 'p4', 'p8']
+    paramnames = ['p1', 'p4', 'p8']
 
-    params.save(str(params_file), save_params)
+    params.save(str(params_file), paramnames)
     params_json = json.load(params_file)
     for p in ('p1', 'p4', 'p8'):
         assert params_json[p] == params[p]
@@ -197,24 +197,24 @@ def test_params_save_save_params(tmpdir, params):
 
     # Not iterable
     params_file = tmpdir.join("params_notiter.json")
-    save_params = 1
+    paramnames = 1
 
     with pytest.raises(TypeError):
-        params.save(str(params_file), save_params)
+        params.save(str(params_file), paramnames)
 
     # String
     params_file = tmpdir.join("params_string.json")
-    save_params = "p1, p2, p3, p4, p5, p6, p7, p8"
+    paramnames = "p1, p2, p3, p4, p5, p6, p7, p8"
 
     with pytest.raises(TypeError):
-        params.save(str(params_file), save_params)
+        params.save(str(params_file), paramnames)
 
     # Non-existing parameter
     params_file = tmpdir.join("params_nonexist.json")
-    save_params = ['p1', 'p999']
+    paramnames = ['p1', 'p999']
 
     with pytest.raises(ValueError):
-        params.save(str(params_file), save_params)
+        params.save(str(params_file), paramnames)
 
 
 def test_params_save_indent(tmpdir, params):
