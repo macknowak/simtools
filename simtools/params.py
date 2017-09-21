@@ -174,13 +174,32 @@ class ParamSets(collections.MutableSequence):
             basestring = str
         if isinstance(paramnames, basestring):
             raise TypeError("'paramnames' is a string.")
+
+        # Determine records to be saved
+        csv_rows = []
         for p, paramset in enumerate(self._paramsets):
+            csv_row = {}
             for paramname in paramnames:
-                if paramname not in paramset:
+                # Evaluate parameter
+                try:
+                    paramval = eval(paramname, globals(), paramset)
+                except Exception:
                     raise ValueError("Selected parameter '{0}' is not found "
                                      "at index {1}.".format(paramname, p))
 
-        # If necessary, create a field for record numbers
+                # If parameter value is None, write it explicitly (by default,
+                # None is written as the empty string), otherwise use the value
+                # itself
+                csv_row[paramname] = (paramval if paramval is not None
+                                      else str(paramval))
+
+            # If necessary, determine record number
+            if with_numbers:
+                csv_row['#'] = p + 1
+
+            csv_rows.append(csv_row)
+
+        # Determine field names
         if with_numbers:
             fieldnames = ['#']
             fieldnames.extend(paramnames)
@@ -193,13 +212,4 @@ class ParamSets(collections.MutableSequence):
                                         extrasaction='ignore', dialect=dialect)
             if with_header:
                 csv_writer.writeheader()
-            for p, paramset in enumerate(self._paramsets):
-                csv_row = paramset.copy()
-                for paramname, paramval in csv_row.items():
-                    # If parameter value is None, write it explicitly (by
-                    # default, None is written as the empty string)
-                    if paramval is None:
-                        csv_row[paramname] = str(paramval)
-                if with_numbers:
-                    csv_row['#'] = p + 1
-                csv_writer.writerow(csv_row)
+            csv_writer.writerows(csv_rows)

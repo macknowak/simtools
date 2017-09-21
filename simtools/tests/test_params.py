@@ -4,6 +4,7 @@
 import csv
 import json
 import math
+import os
 
 import pytest
 
@@ -484,3 +485,48 @@ def test_paramsets_save_paramnames(tmpdir):
 
     with pytest.raises(ValueError):
         paramsets.save(str(paramsets_file), paramnames)
+    assert not os.path.isfile(str(paramsets_file))
+
+
+def test_paramsets_save_nested(tmpdir):
+    # Correct
+    paramsets_file = tmpdir.join("paramsets_ok.csv")
+    p0 = Params({'p1': {'a': 1, 'b': 2.5}, 'p2': ["abc", "def"]})
+    p1 = Params({'p1': {'a': 10, 'b': 20.5}, 'p2': ["uvw", "xyz"]})
+    paramsets = ParamSets()
+    paramsets.append(p0)
+    paramsets.append(p1)
+
+    paramsets.save(str(paramsets_file),
+                   ["p1['a']", "p1['b']", 'p2[0]', 'p2[1]'])
+    with paramsets_file.open() as paramsets_file:
+        csv_reader = csv.DictReader(paramsets_file, dialect='excel-tab')
+        for csv_row, paramset in zip(csv_reader, paramsets):
+            paramnames = sorted(csv_row.keys())  # needed to avoid confusion
+                                                 # between single and double
+                                                 # quotes
+            assert csv_row[paramnames[0]] == str(paramset['p1']['a'])
+            assert csv_row[paramnames[1]] == str(paramset['p1']['b'])
+            assert csv_row['p2[0]'] == str(paramset['p2'][0])
+            assert csv_row['p2[1]'] == str(paramset['p2'][1])
+
+    # Syntax error
+    paramsets_file = tmpdir.join("paramsets_syntax.csv")
+
+    with pytest.raises(ValueError):
+        paramsets.save(str(paramsets_file), ["p1['a']", "p1["])
+    assert not os.path.isfile(str(paramsets_file))
+
+    # Illegal key
+    paramsets_file = tmpdir.join("paramsets_key.csv")
+
+    with pytest.raises(ValueError):
+        paramsets.save(str(paramsets_file), ["p1['a']", "p1['z']"])
+    assert not os.path.isfile(str(paramsets_file))
+
+    # Illegal index
+    paramsets_file = tmpdir.join("paramsets_index.csv")
+
+    with pytest.raises(ValueError):
+        paramsets.save(str(paramsets_file), ['p2[0]', 'p2[9]'])
+    assert not os.path.isfile(str(paramsets_file))
