@@ -366,7 +366,7 @@ p4 = None
         paramsets[2]
 
 
-def test_paramsets_save(tmpdir):
+def test_paramsets_save_csv(tmpdir):
     # Default (with header and without record numbers)
     paramsets_file = tmpdir.join("paramsets_default.csv")
     p0 = Params({'p1': 1, 'p2': 2.5, 'p3': "abc", 'p4': "", 'p5': None})
@@ -388,7 +388,7 @@ def test_paramsets_save(tmpdir):
     paramsets_file = tmpdir.join("paramsets_head_num.csv")
 
     paramsets.save(str(paramsets_file), ['p1', 'p2', 'p3', 'p4', 'p5'],
-                   with_header=True, with_numbers=True)
+                   with_numbers=True, with_header=True)
     assert paramsets[0] == p0
     assert paramsets[1] == p1
     with paramsets_file.open() as paramsets_file:
@@ -403,7 +403,7 @@ def test_paramsets_save(tmpdir):
     paramsets_file = tmpdir.join("paramsets.csv")
 
     paramsets.save(str(paramsets_file), ['p1', 'p2', 'p3', 'p4', 'p5'],
-                   with_header=False, with_numbers=False)
+                   with_numbers=False, with_header=False)
     assert paramsets[0] == p0
     assert paramsets[1] == p1
     with paramsets_file.open() as paramsets_file:
@@ -418,7 +418,7 @@ def test_paramsets_save(tmpdir):
     paramsets_file = tmpdir.join("paramsets_num.csv")
 
     paramsets.save(str(paramsets_file), ['p1', 'p2', 'p3', 'p4', 'p5'],
-                   with_header=False, with_numbers=True)
+                   with_numbers=True, with_header=False)
     assert paramsets[0] == p0
     assert paramsets[1] == p1
     with paramsets_file.open() as paramsets_file:
@@ -432,7 +432,7 @@ def test_paramsets_save(tmpdir):
                 assert csv_row[p] == str(paramset[p])
 
 
-def test_paramsets_save_paramnames(tmpdir):
+def test_paramsets_save_csv_paramnames(tmpdir):
     # All parameters passed as a tuple, with record numbers
     paramsets_file = tmpdir.join("paramsets_tuple_num.csv")
     p0 = Params({'p1': 1, 'p2': 2.5, 'p3': "abc", 'p4': None})
@@ -488,7 +488,7 @@ def test_paramsets_save_paramnames(tmpdir):
     assert not os.path.isfile(str(paramsets_file))
 
 
-def test_paramsets_save_nested(tmpdir):
+def test_paramsets_save_csv_nested(tmpdir):
     # Correct
     paramsets_file = tmpdir.join("paramsets_ok.csv")
     p0 = Params({'p1': {'a': 1, 'b': 2.5}, 'p2': ["abc", "def"]})
@@ -530,3 +530,195 @@ def test_paramsets_save_nested(tmpdir):
     with pytest.raises(ValueError):
         paramsets.save(str(paramsets_file), ['p2[0]', 'p2[9]'])
     assert not os.path.isfile(str(paramsets_file))
+
+
+def test_paramsets_save_csv_invalid_kwargs(tmpdir):
+    paramsets_file = tmpdir.join("paramsets_invalidkw.csv")
+    p0 = Params({'p1': 1, 'p2': 2.5, 'p3': "abc"})
+    p1 = Params({'p1': 10, 'p2': 20.5, 'p3': "def"})
+    paramsets = ParamSets()
+    paramsets.append(p0)
+    paramsets.append(p1)
+
+    with pytest.raises(TypeError):
+        paramsets.save(str(paramsets_file), ['p1', 'p2', 'p3'], indent=2)
+
+
+def test_paramsets_save_json(tmpdir):
+    # Default (without record numbers)
+    paramsets_file = tmpdir.join("paramsets_default.json")
+    p0 = Params({'p1': 1, 'p2': 2.5, 'p3': "abc", 'p4': "", 'p5': None})
+    p1 = Params({'p1': None, 'p2': 20.5, 'p3': "", 'p4': "def", 'p5': 10})
+    paramsets = ParamSets()
+    paramsets.append(p0)
+    paramsets.append(p1)
+
+    paramsets.save(str(paramsets_file), ['p1', 'p2', 'p3', 'p4', 'p5'])
+    assert paramsets[0] == p0
+    assert paramsets[1] == p1
+    paramsets_json = json.load(paramsets_file)
+    for paramset_json, paramset in zip(paramsets_json, paramsets):
+        for p in ('p1', 'p2', 'p3', 'p4', 'p5'):
+            assert paramset_json[p] == paramset[p]
+
+    # With record numbers
+    paramsets_file = tmpdir.join("paramsets_num.json")
+
+    paramsets.save(str(paramsets_file), ['p1', 'p2', 'p3', 'p4', 'p5'],
+                   with_numbers=True)
+    assert paramsets[0] == p0
+    assert paramsets[1] == p1
+    paramsets_json = json.load(paramsets_file)
+    for r, (paramset_json, paramset) in enumerate(zip(paramsets_json,
+                                                      paramsets),
+                                                  start=1):
+        assert paramset_json['#'] == r
+        for p in ('p1', 'p2', 'p3', 'p4', 'p5'):
+            assert paramset_json[p] == paramset[p]
+
+
+def test_paramsets_save_json_paramnames(tmpdir):
+    # All parameters passed as a tuple, with record numbers
+    paramsets_file = tmpdir.join("paramsets_tuple_num.json")
+    p0 = Params({'p1': 1, 'p2': 2.5, 'p3': "abc", 'p4': None})
+    p1 = Params({'p1': 10, 'p2': 20.5, 'p3': "def", 'p4': None})
+    paramsets = ParamSets()
+    paramsets.append(p0)
+    paramsets.append(p1)
+    paramnames = 'p1', 'p2', 'p3', 'p4'
+
+    paramsets.save(str(paramsets_file), paramnames, with_numbers=True)
+    paramsets_json = json.load(paramsets_file)
+    for r, (paramset_json, paramset) in enumerate(zip(paramsets_json,
+                                                      paramsets),
+                                                  start=1):
+        assert paramset_json['#'] == r
+        for p in ('p1', 'p2', 'p3', 'p4'):
+            assert paramset_json[p] == paramset[p]
+
+    # Some parameters passed as a tuple
+    paramsets_file = tmpdir.join("paramsets_some.json")
+    paramnames = 'p1', 'p4'
+
+    paramsets.save(str(paramsets_file), paramnames)
+    paramsets_json = json.load(paramsets_file)
+    for paramset_json, paramset in zip(paramsets_json, paramsets):
+        for p in ('p1', 'p4'):
+            assert paramset_json[p] == paramset[p]
+        for p in ('p2', 'p3'):
+            with pytest.raises(KeyError):
+                assert paramset_json[p] == paramset[p]
+
+    # Not iterable
+    paramsets_file = tmpdir.join("paramsets_notiter.json")
+    paramnames = 1
+
+    with pytest.raises(TypeError):
+        paramsets.save(str(paramsets_file), paramnames)
+
+    # String
+    paramsets_file = tmpdir.join("paramsets_string.json")
+    paramnames = "p1, p2, p3, p4"
+
+    with pytest.raises(TypeError):
+        paramsets.save(str(paramsets_file), paramnames)
+
+    # Non-existing parameter
+    paramsets_file = tmpdir.join("paramsets_nonexist.json")
+    paramnames = ['p1', 'p999']
+
+    with pytest.raises(ValueError):
+        paramsets.save(str(paramsets_file), paramnames)
+    assert not os.path.isfile(str(paramsets_file))
+
+
+def test_paramsets_save_json_nested(tmpdir):
+    # Correct
+    paramsets_file = tmpdir.join("paramsets_ok.json")
+    p0 = Params({'p1': {'a': 1, 'b': 2.5}, 'p2': ["abc", "def"]})
+    p1 = Params({'p1': {'a': 10, 'b': 20.5}, 'p2': ["uvw", "xyz"]})
+    paramsets = ParamSets()
+    paramsets.append(p0)
+    paramsets.append(p1)
+
+    paramsets.save(str(paramsets_file),
+                   ["p1['a']", "p1['b']", 'p2[0]', 'p2[1]'])
+    paramsets_json = json.load(paramsets_file)
+    for paramset_json, paramset in zip(paramsets_json, paramsets):
+        paramnames = sorted(paramset_json.keys())  # needed to avoid confusion
+                                                   # between single and double
+                                                   # quotes
+        assert paramset_json[paramnames[0]] == paramset['p1']['a']
+        assert paramset_json[paramnames[1]] == paramset['p1']['b']
+        assert paramset_json['p2[0]'] == paramset['p2'][0]
+        assert paramset_json['p2[1]'] == paramset['p2'][1]
+
+    # Syntax error
+    paramsets_file = tmpdir.join("paramsets_syntax.json")
+
+    with pytest.raises(ValueError):
+        paramsets.save(str(paramsets_file), ["p1['a']", "p1["])
+    assert not os.path.isfile(str(paramsets_file))
+
+    # Illegal key
+    paramsets_file = tmpdir.join("paramsets_key.json")
+
+    with pytest.raises(ValueError):
+        paramsets.save(str(paramsets_file), ["p1['a']", "p1['z']"])
+    assert not os.path.isfile(str(paramsets_file))
+
+    # Illegal index
+    paramsets_file = tmpdir.join("paramsets_index.json")
+
+    with pytest.raises(ValueError):
+        paramsets.save(str(paramsets_file), ['p2[0]', 'p2[9]'])
+    assert not os.path.isfile(str(paramsets_file))
+
+
+def test_paramsets_save_json_indent(tmpdir):
+    # Indent = 4
+    paramsets_file = tmpdir.join("paramsets_indent4.json")
+    p0 = Params({'p1': 1, 'p2': 2.5, 'p3': "abc"})
+    p1 = Params({'p1': 10, 'p2': 20.5, 'p3': "def"})
+    paramsets = ParamSets()
+    paramsets.append(p0)
+    paramsets.append(p1)
+
+    paramsets.save(str(paramsets_file), ['p1', 'p2', 'p3'], indent=4)
+    n_bytes4 = paramsets_file.size()
+    n_lines4 = len(paramsets_file.readlines())
+    assert n_lines4 == 12
+
+    # Indent = 2
+    paramsets_file = tmpdir.join("paramsets_indent2.json")
+
+    paramsets.save(str(paramsets_file), ['p1', 'p2', 'p3'], indent=2)
+    n_bytes2 = paramsets_file.size()
+    assert n_bytes2 < n_bytes4
+    n_lines2 = len(paramsets_file.readlines())
+    assert n_lines2 == 12
+
+    # Indent = None
+    paramsets_file = tmpdir.join("paramsets_indentnone.json")
+
+    paramsets.save(str(paramsets_file), ['p1', 'p2', 'p3'], indent=None)
+    n_bytes_none = paramsets_file.size()
+    assert n_bytes_none < n_bytes2
+    n_lines_none = len(paramsets_file.readlines())
+    assert n_lines_none == 1
+
+
+@pytest.mark.parametrize('kwargs', [
+    {'fp': None},
+    {'obj': None},
+    {'with_header': False}])
+def test_paramsets_save_json_invalid_kwargs(tmpdir, kwargs):
+    paramsets_file = tmpdir.join("paramsets_invalidkw.json")
+    p0 = Params({'p1': 1, 'p2': 2.5, 'p3': "abc"})
+    p1 = Params({'p1': 10, 'p2': 20.5, 'p3': "def"})
+    paramsets = ParamSets()
+    paramsets.append(p0)
+    paramsets.append(p1)
+
+    with pytest.raises(TypeError):
+        paramsets.save(str(paramsets_file), ['p1', 'p2', 'p3'], **kwargs)
