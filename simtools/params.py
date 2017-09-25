@@ -175,6 +175,8 @@ class ParamSets(collections.MutableSequence):
             basestring = str
         if isinstance(paramnames, basestring):
             raise TypeError("'paramnames' is a string.")
+        if len(paramnames) > len(set(paramnames)):
+            raise ValueError("'paramnames' contains duplicate values.")
 
         # Save parameter sets to a file according to the file extension
         if filename.endswith(".csv"):

@@ -487,6 +487,13 @@ def test_paramsets_save_csv_paramnames(tmpdir):
         paramsets.save(str(paramsets_file), paramnames)
     assert not os.path.isfile(str(paramsets_file))
 
+    # Repeated parameter
+    paramsets_file = tmpdir.join("paramsets_repeated.csv")
+    paramnames = ['p1', 'p2', 'p3', 'p2', 'p4']
+
+    with pytest.raises(ValueError):
+        paramsets.save(str(paramsets_file), paramnames)
+
 
 def test_paramsets_save_csv_nested(tmpdir):
     # Correct
@@ -676,6 +683,13 @@ def test_paramsets_save_json_paramnames(tmpdir):
     with pytest.raises(ValueError):
         paramsets.save(str(paramsets_file), paramnames)
     assert not os.path.isfile(str(paramsets_file))
+
+    # Repeated parameter
+    paramsets_file = tmpdir.join("paramsets_repeated.json")
+    paramnames = ['p1', 'p2', 'p3', 'p2', 'p4']
+
+    with pytest.raises(ValueError):
+        paramsets.save(str(paramsets_file), paramnames)
 
 
 def test_paramsets_save_json_nested(tmpdir):
