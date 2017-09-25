@@ -217,6 +217,13 @@ def test_params_save_paramnames(tmpdir, params):
     with pytest.raises(ValueError):
         params.save(str(params_file), paramnames)
 
+    # Repeated parameter
+    params_file = tmpdir.join("params_repeated.json")
+    paramnames = ['p1', 'p2', 'p3', 'p2', 'p4', 'p5', 'p6', 'p7', 'p8']
+
+    with pytest.raises(ValueError):
+        params.save(str(params_file), paramnames)
+
 
 def test_params_save_indent(tmpdir, params):
     # Indent = 4

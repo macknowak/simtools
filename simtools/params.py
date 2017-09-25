@@ -49,6 +49,8 @@ class Params(Dict):
                 basestring = str
             if isinstance(paramnames, basestring):
                 raise TypeError("'paramnames' is a string.")
+            if len(paramnames) > len(set(paramnames)):
+                raise ValueError("'paramnames' contains duplicate values.")
 
         # If necessary, validate extra keyword arguments
         if kwargs:
