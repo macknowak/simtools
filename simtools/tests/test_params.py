@@ -90,6 +90,22 @@ def test_params_load_json(tmpdir):
         p.load(str(params_file))
 
 
+def test_params_load_json_upper(tmpdir):
+    params_file = tmpdir.join("PARAMS_UPPER.JSON")
+    params_file.write(
+"""{
+    "p1": 1,
+    "p2": 2.5,
+    "p3": "abc"
+}""")
+    p = Params()
+
+    p.load(str(params_file))
+    assert p.p1 == 1
+    assert p.p2 == 2.5
+    assert p.p3 == "abc"
+
+
 def test_params_load_py(tmpdir):
     # Correct
     params_file = tmpdir.join("params_ok.py")
@@ -153,6 +169,21 @@ p2
 
     with pytest.raises(ParamFileError):
         p.load(str(params_file))
+
+
+def test_params_load_py_upper(tmpdir):
+    params_file = tmpdir.join("PARAMS_UPPER.PY")
+    params_file.write(
+"""p1 = 1
+p2 = 2.5
+p3 = "abc"
+""")
+    p = Params()
+
+    p.load(str(params_file))
+    assert p.p1 == 1
+    assert p.p2 == 2.5
+    assert p.p3 == "abc"
 
 
 def test_params_load_no_ext(tmpdir):
@@ -439,6 +470,22 @@ def test_paramsets_save_csv(tmpdir):
                 assert csv_row[p] == str(paramset[p])
 
 
+def test_paramsets_save_csv_upper(tmpdir):
+    paramsets_file = tmpdir.join("PARAMSETS_UPPER.CSV")
+    p0 = Params({'p1': 1, 'p2': 2.5, 'p3': "abc"})
+    p1 = Params({'p1': 10, 'p2': 20.5, 'p3': "def"})
+    paramsets = ParamSets()
+    paramsets.append(p0)
+    paramsets.append(p1)
+
+    paramsets.save(str(paramsets_file), ['p1', 'p2', 'p3'])
+    with paramsets_file.open() as paramsets_file:
+        csv_reader = csv.DictReader(paramsets_file, dialect='excel-tab')
+        for csv_row, paramset in zip(csv_reader, paramsets):
+            for p in ('p1', 'p2', 'p3'):
+                assert csv_row[p] == str(paramset[p])
+
+
 def test_paramsets_save_csv_paramnames(tmpdir):
     # All parameters passed as a tuple, with record numbers
     paramsets_file = tmpdir.join("paramsets_tuple_num.csv")
@@ -634,6 +681,21 @@ def test_paramsets_save_json(tmpdir):
                                                   start=1):
         assert paramset_json['#'] == r
         for p in ('p1', 'p2', 'p3', 'p4', 'p5'):
+            assert paramset_json[p] == paramset[p]
+
+
+def test_paramsets_save_json_upper(tmpdir):
+    paramsets_file = tmpdir.join("PARAMSETS_UPPER.JSON")
+    p0 = Params({'p1': 1, 'p2': 2.5, 'p3': "abc"})
+    p1 = Params({'p1': 10, 'p2': 20.5, 'p3': "def"})
+    paramsets = ParamSets()
+    paramsets.append(p0)
+    paramsets.append(p1)
+
+    paramsets.save(str(paramsets_file), ['p1', 'p2', 'p3'])
+    paramsets_json = json.load(paramsets_file)
+    for paramset_json, paramset in zip(paramsets_json, paramsets):
+        for p in ('p1', 'p2', 'p3'):
             assert paramset_json[p] == paramset[p]
 
 

@@ -26,9 +26,10 @@ class Params(Dict):
 
     def load(self, filename):
         """Load parameters from a file."""
-        if filename.endswith(".json"):
+        filename_lower = filename.lower()
+        if filename_lower.endswith(".json"):
             self._load_json(filename)
-        elif filename.endswith(".py"):
+        elif filename_lower.endswith(".py"):
             self._load_py(filename)
         else:
             raise ValueError("File format is not supported.")
@@ -181,10 +182,11 @@ class ParamSets(collections.MutableSequence):
             raise ValueError("'paramnames' contains duplicate values.")
 
         # Save parameter sets to a file according to the file extension
-        if filename.endswith(".csv"):
+        filename_lower = filename.lower()
+        if filename_lower.endswith(".csv"):
             self._save_csv(filename, paramnames, paramnames_map, with_numbers,
                            **kwargs)
-        elif filename.endswith(".json"):
+        elif filename_lower.endswith(".json"):
             self._save_json(filename, paramnames, paramnames_map, with_numbers,
                             **kwargs)
         else:
