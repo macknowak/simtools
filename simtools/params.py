@@ -161,7 +161,8 @@ class ParamSets(collections.MutableSequence):
         """Load parameters from a file as a parameter set."""
         self._paramsets.append(load_params(filename))
 
-    def save(self, filename, paramnames, with_numbers=False, **kwargs):
+    def save(self, filename, paramnames, paramnames_map=None,
+             with_numbers=False, **kwargs):
         """Save parameter sets to a file."""
         # Validate names of parameters to be saved
         try:
@@ -177,18 +178,23 @@ class ParamSets(collections.MutableSequence):
 
         # Save parameter sets to a file according to the file extension
         if filename.endswith(".csv"):
-            self._save_csv(filename, paramnames, with_numbers, **kwargs)
+            self._save_csv(filename, paramnames, paramnames_map, with_numbers,
+                           **kwargs)
         elif filename.endswith(".json"):
-            self._save_json(filename, paramnames, with_numbers, **kwargs)
+            self._save_json(filename, paramnames, paramnames_map, with_numbers,
+                            **kwargs)
         else:
             raise ValueError("File format is not supported.")
 
-    def _make_records(self, paramnames, with_numbers, explicit_none):
-        """Create records of parameters for saving to a file."""
+    def _make_records(self, paramnames, record_paramnames, with_numbers,
+                      explicit_none):
+        """Create parameter records for saving to a file."""
         params_records = []
         for p, paramset in enumerate(self._paramsets):
+            # Populate parameter record corresponding to the parameter set
             params_record = {}
-            for paramname in paramnames:
+            for paramname, record_paramname in zip(paramnames,
+                                                   record_paramnames):
                 # Evaluate parameter
                 try:
                     paramval = eval(paramname, globals(), paramset)
@@ -200,9 +206,9 @@ class ParamSets(collections.MutableSequence):
                 # (by default, None is written as the empty string), otherwise
                 # use the value itself
                 if explicit_none and paramval is None:
-                    params_record[paramname] = str(paramval)
+                    params_record[record_paramname] = str(paramval)
                 else:
-                    params_record[paramname] = paramval
+                    params_record[record_paramname] = paramval
 
             # If necessary, determine record number
             if with_numbers:
@@ -212,21 +218,48 @@ class ParamSets(collections.MutableSequence):
 
         return params_records
 
-    def _save_csv(self, filename, paramnames, with_numbers, with_header=True,
-                  dialect='excel-tab'):
+    def _substitute_paramnames(self, paramnames, paramnames_map):
+        """Substitute parameter names according to a mapping."""
+        # If no mapping of parameter names is provided, do not substitute
+        # parameter names
+        if paramnames_map is None:
+            return paramnames
+
+        # Validate mapping of parameter names
+        for paramname in paramnames_map.keys():
+            if paramname not in paramnames:
+                raise ValueError(
+                    "Key '{}' in 'paramnames_map' is not a parameter name "
+                    "in 'paramnames'.".format(paramname))
+
+        # Determine substituted parameter names
+        new_paramnames = [paramname if paramname not in paramnames_map
+                          else paramnames_map[paramname]
+                          for paramname in paramnames]
+        if len(set(new_paramnames)) < len(paramnames):
+            raise ValueError("Substituted parameter names are not unique.")
+
+        return new_paramnames
+
+    def _save_csv(self, filename, paramnames, paramnames_map, with_numbers,
+                  with_header=True, dialect='excel-tab'):
         """Save parameter sets to a CSV file."""
-        # Determine records to be saved
-        params_records = self._make_records(paramnames, with_numbers,
-                                            explicit_none=True)
+        # Determine parameter names in parameter records
+        record_paramnames = self._substitute_paramnames(paramnames,
+                                                        paramnames_map)
+
+        # Determine parameter records to be saved
+        params_records = self._make_records(paramnames, record_paramnames,
+                                            with_numbers, explicit_none=True)
 
         # Determine field names
         if with_numbers:
             fieldnames = ['#']
-            fieldnames.extend(paramnames)
+            fieldnames.extend(record_paramnames)
         else:
-            fieldnames = paramnames
+            fieldnames = record_paramnames
 
-        # Save parameter sets to a CSV file
+        # Save parameter records to a CSV file
         with open(filename, 'wb') as paramsets_file:
             csv_writer = csv.DictWriter(paramsets_file, fieldnames,
                                         extrasaction='ignore', dialect=dialect)
@@ -234,7 +267,8 @@ class ParamSets(collections.MutableSequence):
                 csv_writer.writeheader()
             csv_writer.writerows(params_records)
 
-    def _save_json(self, filename, paramnames, with_numbers, **kwargs):
+    def _save_json(self, filename, paramnames, paramnames_map, with_numbers,
+                   **kwargs):
         """Save parameter sets to a JSON file."""
         DEFAULT_INDENT = 4
 
@@ -245,13 +279,17 @@ class ParamSets(collections.MutableSequence):
                     raise TypeError("_save_json() got an unexpected keyword "
                                     "argument '{}'.".format(arg))
 
-        # Determine records to be saved
-        params_records = self._make_records(paramnames, with_numbers,
-                                            explicit_none=False)
+        # Determine parameter names in parameter records
+        record_paramnames = self._substitute_paramnames(paramnames,
+                                                        paramnames_map)
+
+        # Determine parameter records to be saved
+        params_records = self._make_records(paramnames, record_paramnames,
+                                            with_numbers, explicit_none=False)
 
         # Determine indentation
         indent = kwargs.pop('indent', DEFAULT_INDENT)
 
-        # Save parameter sets to a JSON file
+        # Save parameter records to a JSON file
         with open(filename, 'w') as paramsets_file:
             json.dump(params_records, paramsets_file, indent=indent, **kwargs)

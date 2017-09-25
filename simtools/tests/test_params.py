@@ -502,11 +502,11 @@ def test_paramsets_save_csv_nested(tmpdir):
     with paramsets_file.open() as paramsets_file:
         csv_reader = csv.DictReader(paramsets_file, dialect='excel-tab')
         for csv_row, paramset in zip(csv_reader, paramsets):
-            paramnames = sorted(csv_row.keys())  # needed to avoid confusion
-                                                 # between single and double
-                                                 # quotes
-            assert csv_row[paramnames[0]] == str(paramset['p1']['a'])
-            assert csv_row[paramnames[1]] == str(paramset['p1']['b'])
+            paramnames_csv = sorted(csv_row.keys())  # needed to avoid
+                                                     # confusion between single
+                                                     # and double quotes
+            assert csv_row[paramnames_csv[0]] == str(paramset['p1']['a'])
+            assert csv_row[paramnames_csv[1]] == str(paramset['p1']['b'])
             assert csv_row['p2[0]'] == str(paramset['p2'][0])
             assert csv_row['p2[1]'] == str(paramset['p2'][1])
 
@@ -530,6 +530,52 @@ def test_paramsets_save_csv_nested(tmpdir):
     with pytest.raises(ValueError):
         paramsets.save(str(paramsets_file), ['p2[0]', 'p2[9]'])
     assert not os.path.isfile(str(paramsets_file))
+
+
+def test_paramsets_save_csv_map(tmpdir):
+    # Correct
+    paramsets_file = tmpdir.join("paramsets_ok.csv")
+    p0 = Params({'p1': {'a': 1, 'b': 2.5}, 'p2': ["abc", "def"]})
+    p1 = Params({'p1': {'a': 10, 'b': 20.5}, 'p2': ["uvw", "xyz"]})
+    paramsets = ParamSets()
+    paramsets.append(p0)
+    paramsets.append(p1)
+    paramnames = ["p1['a']", "p1['b']", 'p2[0]', 'p2[1]']
+    paramnames_map = {"p1['a']": 'p1a', 'p2[0]': 'p20'}
+
+    paramsets.save(str(paramsets_file), paramnames, paramnames_map)
+    with paramsets_file.open() as paramsets_file:
+        csv_reader = csv.DictReader(paramsets_file, dialect='excel-tab')
+        for csv_row, paramset in zip(csv_reader, paramsets):
+            paramnames_csv = sorted(csv_row.keys())  # needed to avoid
+                                                     # confusion between single
+                                                     # and double quotes
+            assert csv_row['p1a'] == str(paramset['p1']['a'])
+            assert csv_row[paramnames_csv[0]] == str(paramset['p1']['b'])
+            assert csv_row['p20'] == str(paramset['p2'][0])
+            assert csv_row['p2[1]'] == str(paramset['p2'][1])
+            assert 'p2[0]' not in csv_row
+
+    # Non-existing parameter
+    paramsets_file = tmpdir.join("paramsets_nonexist.csv")
+    paramnames_map = {"p1['a']": 'p1a', 'p999[0]': 'p9990'}
+
+    with pytest.raises(ValueError):
+        paramsets.save(str(paramsets_file), paramnames, paramnames_map)
+
+    # Repeated parameter
+    paramsets_file = tmpdir.join("paramsets_repeated.csv")
+    paramnames_map = {"p1['a']": 'p1a', 'p2[0]': 'p1a'}
+
+    with pytest.raises(ValueError):
+        paramsets.save(str(paramsets_file), paramnames, paramnames_map)
+
+    # Non-unique parameter
+    paramsets_file = tmpdir.join("paramsets_nonunique.csv")
+    paramnames_map = {"p1['a']": 'p1a', 'p2[0]': 'p2[1]'}
+
+    with pytest.raises(ValueError):
+        paramsets.save(str(paramsets_file), paramnames, paramnames_map)
 
 
 def test_paramsets_save_csv_invalid_kwargs(tmpdir):
@@ -645,11 +691,12 @@ def test_paramsets_save_json_nested(tmpdir):
                    ["p1['a']", "p1['b']", 'p2[0]', 'p2[1]'])
     paramsets_json = json.load(paramsets_file)
     for paramset_json, paramset in zip(paramsets_json, paramsets):
-        paramnames = sorted(paramset_json.keys())  # needed to avoid confusion
-                                                   # between single and double
-                                                   # quotes
-        assert paramset_json[paramnames[0]] == paramset['p1']['a']
-        assert paramset_json[paramnames[1]] == paramset['p1']['b']
+        paramnames_json = sorted(paramset_json.keys())  # needed to avoid
+                                                        # confusion between
+                                                        # single and double
+                                                        # quotes
+        assert paramset_json[paramnames_json[0]] == paramset['p1']['a']
+        assert paramset_json[paramnames_json[1]] == paramset['p1']['b']
         assert paramset_json['p2[0]'] == paramset['p2'][0]
         assert paramset_json['p2[1]'] == paramset['p2'][1]
 
@@ -673,6 +720,52 @@ def test_paramsets_save_json_nested(tmpdir):
     with pytest.raises(ValueError):
         paramsets.save(str(paramsets_file), ['p2[0]', 'p2[9]'])
     assert not os.path.isfile(str(paramsets_file))
+
+
+def test_paramsets_save_json_map(tmpdir):
+    # Correct
+    paramsets_file = tmpdir.join("paramsets_ok.json")
+    p0 = Params({'p1': {'a': 1, 'b': 2.5}, 'p2': ["abc", "def"]})
+    p1 = Params({'p1': {'a': 10, 'b': 20.5}, 'p2': ["uvw", "xyz"]})
+    paramsets = ParamSets()
+    paramsets.append(p0)
+    paramsets.append(p1)
+    paramnames = ["p1['a']", "p1['b']", 'p2[0]', 'p2[1]']
+    paramnames_map = {"p1['a']": 'p1a', 'p2[0]': 'p20'}
+
+    paramsets.save(str(paramsets_file), paramnames, paramnames_map)
+    paramsets_json = json.load(paramsets_file)
+    for paramset_json, paramset in zip(paramsets_json, paramsets):
+        paramnames_json = sorted(paramset_json.keys())  # needed to avoid
+                                                        # confusion between
+                                                        # single and double
+                                                        # quotes
+        assert paramset_json['p1a'] == paramset['p1']['a']
+        assert paramset_json[paramnames_json[0]] == paramset['p1']['b']
+        assert paramset_json['p20'] == paramset['p2'][0]
+        assert paramset_json['p2[1]'] == paramset['p2'][1]
+        assert 'p2[0]' not in paramset_json
+
+    # Non-existing parameter
+    paramsets_file = tmpdir.join("paramsets_nonexist.json")
+    paramnames_map = {"p1['a']": 'p1a', 'p999[0]': 'p9990'}
+
+    with pytest.raises(ValueError):
+        paramsets.save(str(paramsets_file), paramnames, paramnames_map)
+
+    # Repeated parameter
+    paramsets_file = tmpdir.join("paramsets_repeated.json")
+    paramnames_map = {"p1['a']": 'p1a', 'p2[0]': 'p1a'}
+
+    with pytest.raises(ValueError):
+        paramsets.save(str(paramsets_file), paramnames, paramnames_map)
+
+    # Non-unique parameter
+    paramsets_file = tmpdir.join("paramsets_nonunique.json")
+    paramnames_map = {"p1['a']": 'p1a', 'p2[0]': 'p2[1]'}
+
+    with pytest.raises(ValueError):
+        paramsets.save(str(paramsets_file), paramnames, paramnames_map)
 
 
 def test_paramsets_save_json_indent(tmpdir):
