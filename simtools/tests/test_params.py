@@ -9,7 +9,7 @@ import os
 import pytest
 
 from simtools.exceptions import ParamFileError
-from simtools.params import ParamSets, Params
+from simtools.params import export_params, ParamSets, Params
 
 
 @pytest.fixture
@@ -187,7 +187,7 @@ p3 = "abc"
 
 
 def test_params_load_no_ext(tmpdir):
-    params_file = tmpdir.join("params_no_ext")
+    params_file = tmpdir.join("params_noext")
     p = Params()
 
     with pytest.raises(ValueError):
@@ -898,3 +898,248 @@ def test_paramsets_save_json_invalid_kwargs(tmpdir, kwargs):
 
     with pytest.raises(TypeError):
         paramsets.save(str(paramsets_file), ['p1', 'p2', 'p3'], **kwargs)
+
+
+def test_export_params_csv(tmpdir):
+    # All parameters
+    export_file = tmpdir.join("params_export.csv")
+    p0 = Params({'p1': 1, 'p2': 2.5, 'p3': "abc", 'p4': "", 'p5': None})
+    params_file0 = tmpdir.mkdir("20001020_060708").join("params.json")
+    params_file0.write(
+"""{
+    "p1": 1,
+    "p2": 2.5,
+    "p3": "abc",
+    "p4": "",
+    "p5": null
+}""")
+    p1 = Params({'p1': None, 'p2': 20.5, 'p3': "", 'p4': "def", 'p5': 10})
+    params_file1 = tmpdir.mkdir("20001020_070809").join("params.py")
+    params_file1.write(
+"""p1 = None
+p2 = 20.5
+p3 = ""
+p4 = "def"
+p5 = 10
+""")
+    params_paths = [str(params_file0), str(params_file1)]
+    paramnames = ['p1', 'p2', 'p3', 'p4', 'p5']
+
+    export_params(str(export_file), params_paths, paramnames)
+    with export_file.open() as export_file:
+        csv_reader = csv.DictReader(export_file, dialect='excel-tab')
+        for csv_row, params in zip(csv_reader, [p0, p1]):
+            for p in ('p1', 'p2', 'p3', 'p4', 'p5'):
+                assert csv_row[p] == str(params[p])
+
+    # Some parameters
+    export_file = tmpdir.join("params_some.csv")
+    paramnames = ['p1', 'p3', 'p5']
+
+    export_params(str(export_file), params_paths, paramnames)
+    with export_file.open() as export_file:
+        csv_reader = csv.DictReader(export_file, dialect='excel-tab')
+        for csv_row, params in zip(csv_reader, [p0, p1]):
+            for p in ('p1', 'p3', 'p5'):
+                assert csv_row[p] == str(params[p])
+            for p in ('p2', 'p4'):
+                with pytest.raises(KeyError):
+                    assert csv_row[p] == str(params[p])
+
+    # Mapping of parameter names
+    export_file = tmpdir.join("params_map.csv")
+    paramnames = ['p1', 'p2', 'p3', 'p4', 'p5']
+    paramnames_map = {'p1': 'p_a', 'p2': 'p_b', 'p3': 'p_c', 'p4': 'p_d',
+                      'p5': 'p_e'}
+
+    export_params(str(export_file), params_paths, paramnames, paramnames_map)
+    with export_file.open() as export_file:
+        csv_reader = csv.DictReader(export_file, dialect='excel-tab')
+        for csv_row, params in zip(csv_reader, [p0, p1]):
+            for p_csv, p in zip(('p_a', 'p_b', 'p_c', 'p_d', 'p_e'),
+                                ('p1', 'p2', 'p3', 'p4', 'p5')):
+                assert csv_row[p_csv] == str(params[p])
+
+    # With record numbers
+    export_file = tmpdir.join("params_num.csv")
+    paramnames = ['p1', 'p2', 'p3', 'p4', 'p5']
+
+    export_params(str(export_file), params_paths, paramnames,
+                  with_numbers=True)
+    with export_file.open() as export_file:
+        csv_reader = csv.DictReader(export_file, dialect='excel-tab')
+        for r, (csv_row, params) in enumerate(zip(csv_reader, [p0, p1]),
+                                              start=1):
+            assert csv_row['#'] == str(r)
+            for p in ('p1', 'p2', 'p3', 'p4', 'p5'):
+                assert csv_row[p] == str(params[p])
+
+    # Without header
+    export_file = tmpdir.join("params_nohead.csv")
+    paramnames = ['p1', 'p2', 'p3', 'p4', 'p5']
+
+    export_params(str(export_file), params_paths, paramnames,
+                  with_header=False)
+    with export_file.open() as export_file:
+        csv_reader = csv.DictReader(export_file,
+                                    ['p1', 'p2', 'p3', 'p4', 'p5'],
+                                    dialect='excel-tab')
+        for csv_row, params in zip(csv_reader, [p0, p1]):
+            for p in ('p1', 'p2', 'p3', 'p4', 'p5'):
+                assert csv_row[p] == str(params[p])
+
+
+def test_export_params_csv_upper(tmpdir):
+    export_file = tmpdir.join("PARAMS_UPPER.CSV")
+    p0 = Params({'p1': 1, 'p2': 2.5, 'p3': "abc"})
+    params_file0 = tmpdir.mkdir("20001020_060708").join("PARAMS.JSON")
+    params_file0.write(
+"""{
+    "p1": 1,
+    "p2": 2.5,
+    "p3": "abc"
+}""")
+    p1 = Params({'p1': 10, 'p2': 20.5, 'p3': "def"})
+    params_file1 = tmpdir.mkdir("20001020_070809").join("PARAMS.PY")
+    params_file1.write(
+"""p1 = 10
+p2 = 20.5
+p3 = "def"
+""")
+    params_paths = [str(params_file0), str(params_file1)]
+    paramnames = ['p1', 'p2', 'p3']
+
+    export_params(str(export_file), params_paths, paramnames)
+    with export_file.open() as export_file:
+        csv_reader = csv.DictReader(export_file, dialect='excel-tab')
+        for csv_row, params in zip(csv_reader, [p0, p1]):
+            for p in ('p1', 'p2', 'p3'):
+                assert csv_row[p] == str(params[p])
+
+
+def test_export_params_json(tmpdir):
+    # All parameters
+    export_file = tmpdir.join("params_export.json")
+    p0 = Params({'p1': 1, 'p2': 2.5, 'p3': "abc", 'p4': "", 'p5': None})
+    params_file0 = tmpdir.mkdir("20001020_060708").join("params.json")
+    params_file0.write(
+"""{
+    "p1": 1,
+    "p2": 2.5,
+    "p3": "abc",
+    "p4": "",
+    "p5": null
+}""")
+    p1 = Params({'p1': None, 'p2': 20.5, 'p3': "", 'p4': "def", 'p5': 10})
+    params_file1 = tmpdir.mkdir("20001020_070809").join("params.py")
+    params_file1.write(
+"""p1 = None
+p2 = 20.5
+p3 = ""
+p4 = "def"
+p5 = 10
+""")
+    params_paths = [str(params_file0), str(params_file1)]
+    paramnames = ['p1', 'p2', 'p3', 'p4', 'p5']
+
+    export_params(str(export_file), params_paths, paramnames)
+    paramsets_json = json.load(export_file)
+    for params_json, params in zip(paramsets_json, [p0, p1]):
+        for p in ('p1', 'p2', 'p3', 'p4', 'p5'):
+            assert params_json[p] == params[p]
+
+    # Some parameters
+    export_file = tmpdir.join("params_some.json")
+    paramnames = ['p1', 'p3', 'p5']
+
+    export_params(str(export_file), params_paths, paramnames)
+    paramsets_json = json.load(export_file)
+    for params_json, params in zip(paramsets_json, [p0, p1]):
+        for p in ('p1', 'p3', 'p5'):
+            assert params_json[p] == params[p]
+        for p in ('p2', 'p4'):
+                with pytest.raises(KeyError):
+                    assert params_json[p] == params[p]
+
+    # Mapping of parameter names
+    export_file = tmpdir.join("params_map.json")
+    paramnames = ['p1', 'p2', 'p3', 'p4', 'p5']
+    paramnames_map = {'p1': 'p_a', 'p2': 'p_b', 'p3': 'p_c', 'p4': 'p_d',
+                      'p5': 'p_e'}
+
+    export_params(str(export_file), params_paths, paramnames, paramnames_map)
+    paramsets_json = json.load(export_file)
+    for params_json, params in zip(paramsets_json, [p0, p1]):
+        for p_json, p in zip(('p_a', 'p_b', 'p_c', 'p_d', 'p_e'),
+                             ('p1', 'p2', 'p3', 'p4', 'p5')):
+            assert params_json[p_json] == params[p]
+
+    # With record numbers
+    export_file = tmpdir.join("params_num.json")
+    paramnames = ['p1', 'p2', 'p3', 'p4', 'p5']
+
+    export_params(str(export_file), params_paths, paramnames,
+                  with_numbers=True)
+    paramsets_json = json.load(export_file)
+    for r, (params_json, params) in enumerate(zip(paramsets_json, [p0, p1]),
+                                                  start=1):
+        assert params_json['#'] == r
+        for p in ('p1', 'p2', 'p3', 'p4', 'p5'):
+            assert params_json[p] == params[p]
+
+    # Indent
+    export_file = tmpdir.join("params_indentnone.json")
+    paramnames = ['p1', 'p2', 'p3', 'p4', 'p5']
+
+    export_params(str(export_file), params_paths, paramnames, indent=None)
+    n_lines_none = len(export_file.readlines())
+    assert n_lines_none == 1
+
+
+def test_export_params_json_upper(tmpdir):
+    export_file = tmpdir.join("PARAMS_UPPER.JSON")
+    p0 = Params({'p1': 1, 'p2': 2.5, 'p3': "abc"})
+    params_file0 = tmpdir.mkdir("20001020_060708").join("PARAMS.JSON")
+    params_file0.write(
+"""{
+    "p1": 1,
+    "p2": 2.5,
+    "p3": "abc"
+}""")
+    p1 = Params({'p1': 10, 'p2': 20.5, 'p3': "def"})
+    params_file1 = tmpdir.mkdir("20001020_070809").join("PARAMS.PY")
+    params_file1.write(
+"""p1 = 10
+p2 = 20.5
+p3 = "def"
+""")
+    params_paths = [str(params_file0), str(params_file1)]
+    paramnames = ['p1', 'p2', 'p3']
+
+    export_params(str(export_file), params_paths, paramnames)
+    paramsets_json = json.load(export_file)
+    for params_json, params in zip(paramsets_json, [p0, p1]):
+        for p in ('p1', 'p2', 'p3'):
+            assert params_json[p] == params[p]
+
+
+def test_export_params_no_ext(tmpdir):
+    export_file = tmpdir.join("params_noext")
+    params_file0 = tmpdir.mkdir("20001020_060708").join("params.json")
+    params_file0.write(
+"""{
+    "p1": 1,
+    "p2": 2.5,
+    "p3": "abc"
+}""")
+    params_file1 = tmpdir.mkdir("20001020_070809").join("params.py")
+    params_file1.write(
+"""p1 = 10
+p2 = 20.5
+p3 = "def"
+""")
+    params_paths = [str(params_file0), str(params_file1)]
+    paramnames = ['p1', 'p2', 'p3']
+
+    with pytest.raises(ValueError):
+        export_params(str(export_file), params_paths, paramnames)

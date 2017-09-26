@@ -8,7 +8,8 @@ Parameter services provide the following functionality:
 - saving parameters to a JSON file;
 - loading parameters from a file as a parameter set;
 - saving parameter sets to a CSV file;
-- saving parameter sets to a JSON file.
+- saving parameter sets to a JSON file;
+- exporting parameters of multiple simulations to a file.
 """
 
 import collections
@@ -299,3 +300,20 @@ class ParamSets(collections.MutableSequence):
         # Save parameter records to a JSON file
         with open(filename, 'w') as paramsets_file:
             json.dump(params_records, paramsets_file, indent=indent, **kwargs)
+
+
+def export_params(export_filename, params_paths, paramnames,
+                  paramnames_map=None, with_numbers=False, **kwargs):
+    """Export parameters of multiple simulations to a file."""
+    # Validate export filename extension
+    if not any(map(export_filename.lower().endswith, (".csv", ".json"))):
+        raise ValueError("File format is not supported.")
+
+    # Load parameters from parameter files as parameter sets
+    paramsets = ParamSets()
+    for params_path in params_paths:
+        paramsets.load_params(params_path)
+
+    # Save parameter sets to the export file
+    paramsets.save(export_filename, paramnames, paramnames_map, with_numbers,
+                   **kwargs)

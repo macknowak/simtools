@@ -9,7 +9,7 @@ __version__ = '0.1.0.dev1'
 __author__ = "Przemyslaw (Mack) Nowak"
 
 from .argparse import parse_args
-from .params import load_params, ParamSets, Params
+from .params import export_params, load_params, ParamSets, Params
 from .random import generate_seed
 from .simrun import (generate_sim_dirname, generate_sim_id, make_dirs,
                      norm_executable, run_sim)
