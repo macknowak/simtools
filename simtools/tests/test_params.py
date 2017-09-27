@@ -8,8 +8,8 @@ import os
 
 import pytest
 
-from simtools.exceptions import ParamFileError
-from simtools.params import export_params, ParamSets, Params
+from simtools.exceptions import FileError
+from simtools.params import export_params, load_paramnames, ParamSets, Params
 
 
 @pytest.fixture
@@ -86,7 +86,7 @@ def test_params_load_json(tmpdir):
 ]""")
     p = Params()
 
-    with pytest.raises(ParamFileError):
+    with pytest.raises(FileError):
         p.load(str(params_file))
 
 
@@ -145,7 +145,7 @@ p2 = [x+x for x in]
 """)
     p = Params()
 
-    with pytest.raises(ParamFileError):
+    with pytest.raises(FileError):
         p.load(str(params_file))
 
     # Division by 0
@@ -156,7 +156,7 @@ p2 = 5 / 0
 """)
     p = Params()
 
-    with pytest.raises(ParamFileError):
+    with pytest.raises(FileError):
         p.load(str(params_file))
 
     # Undefined name
@@ -167,7 +167,7 @@ p2
 """)
     p = Params()
 
-    with pytest.raises(ParamFileError):
+    with pytest.raises(FileError):
         p.load(str(params_file))
 
 
@@ -1143,3 +1143,96 @@ p3 = "def"
 
     with pytest.raises(ValueError):
         export_params(str(export_file), params_paths, paramnames)
+
+
+def test_load_paramnames(tmpdir):
+    # Single parameter names
+    paramnames_file = tmpdir.join("paramnames_single.txt")
+    paramnames_file.write(
+"""# Parameters
+
+p1
+    p2
+    p3['a']
+p4[0]
+
+    # End of parameters
+""")
+
+    paramnames, paramnames_map = load_paramnames(str(paramnames_file))
+    assert paramnames == ['p1', 'p2', "p3['a']", 'p4[0]']
+    assert paramnames_map == {}
+
+    # Some parameter names with substitutes
+    paramnames_file = tmpdir.join("paramnames_subst.txt")
+    paramnames_file.write(
+"""# Parameters
+
+p1 -> p_a
+    p2
+    p3['a'] -> p3a
+p4[0]
+
+    # End of parameters
+""")
+
+    paramnames, paramnames_map = load_paramnames(str(paramnames_file))
+    assert paramnames == ['p1', 'p2', "p3['a']", 'p4[0]']
+    assert paramnames_map == {'p1': 'p_a', "p3['a']": 'p3a'}
+    for p in ('p2', 'p4[0]'):
+        assert p not in paramnames_map
+
+    # Syntax error
+    paramnames_file = tmpdir.join("paramnames_syntax.txt")
+    paramnames_file.write(
+"""# Parameters
+
+p1
+p2 -> p_b ->
+p3
+
+    # End of parameters
+""")
+
+    with pytest.raises(FileError):
+        paramnames, paramnames_map = load_paramnames(str(paramnames_file))
+
+
+def test_load_paramnames_full_map(tmpdir):
+    # Single parameter names
+    paramnames_file = tmpdir.join("paramnames_single.txt")
+    paramnames_file.write(
+"""# Parameters
+
+p1
+    p2
+    p3['a']
+p4[0]
+
+    # End of parameters
+""")
+
+    paramnames, paramnames_map = load_paramnames(str(paramnames_file),
+                                                 full_paramnames_map=True)
+    assert paramnames == ['p1', 'p2', "p3['a']", 'p4[0]']
+    assert paramnames_map == {'p1': 'p1', 'p2': 'p2', "p3['a']": "p3['a']",
+                              'p4[0]': 'p4[0]'}
+
+    # Some parameter names with substitutes
+    paramnames_file = tmpdir.join("paramnames_subst.txt")
+    paramnames_file.write(
+"""# Parameters
+
+p1 -> p_a
+    p2
+    p3['a'] -> p3a
+p4[0]
+
+    # End of parameters
+""")
+
+    paramnames, paramnames_map = load_paramnames(str(paramnames_file),
+                                                 full_paramnames_map=True)
+    assert paramnames == ['p1', 'p2', "p3['a']", 'p4[0]']
+    assert paramnames_map == {'p1': 'p_a', 'p2': 'p2', "p3['a']": 'p3a',
+                              'p4[0]': 'p4[0]'}

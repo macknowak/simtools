@@ -9,7 +9,8 @@ Parameter services provide the following functionality:
 - loading parameters from a file as a parameter set;
 - saving parameter sets to a CSV file;
 - saving parameter sets to a JSON file;
-- exporting parameters of multiple simulations to a file.
+- exporting parameters of multiple simulations to a file;
+- loading parameter names from a text file.
 """
 
 import collections
@@ -19,7 +20,7 @@ import sys
 import types
 
 from simtools.base import Dict
-from simtools.exceptions import ParamFileError
+from simtools.exceptions import FileError
 
 
 class Params(Dict):
@@ -84,7 +85,7 @@ class Params(Dict):
             try:
                 new_params = json.load(params_file)
             except ValueError as e:
-                raise ParamFileError(filename=filename, error_msg=e.args[0])
+                raise FileError(filename=filename, error_msg=e.args[0])
             self.update(new_params)
 
     def _load_py(self, filename):
@@ -100,8 +101,8 @@ class Params(Dict):
                           if hasattr(exc_traceback.tb_next, 'tb_lineno')
                           else None)
                 del exc_traceback
-                raise ParamFileError(filename=filename, lineno=lineno,
-                                     error_msg=exc_value.args[0])
+                raise FileError(filename=filename, lineno=lineno,
+                                error_msg=exc_value.args[0])
 
             # Remove modules from the local namespace
             for paramname, paramval in new_params.items():
@@ -317,3 +318,45 @@ def export_params(export_filename, params_paths, paramnames,
     # Save parameter sets to the export file
     paramsets.save(export_filename, paramnames, paramnames_map, with_numbers,
                    **kwargs)
+
+
+def load_paramnames(filename, full_paramnames_map=False):
+    """Load parameter names from a file."""
+    COMMENT_START_TOKEN = "#"
+    PARAMNAME_SUBSTITUTION_TOKEN = "->"
+
+    paramnames = []
+    paramnames_map = {}
+    lineno = 0
+    with open(filename) as paramnames_file:
+        for line in paramnames_file:
+            # Increment the line number and strip leading and trailing
+            # whitespace from the line
+            lineno += 1
+            stripped_line = line.strip()
+
+            # If the stripped line is empty or contains only a comment, skip it
+            if (not stripped_line
+                or stripped_line.startswith(COMMENT_START_TOKEN)):
+                continue
+
+            # Assume that the stripped line contains either a single parameter
+            # name or two parameter names separated by a substitution symbol
+            # and extract them
+            line_parts = stripped_line.split(PARAMNAME_SUBSTITUTION_TOKEN)
+            n_line_parts = len(line_parts)
+            if n_line_parts == 1:  # single parameter name
+                paramname = line_parts[0]
+                paramnames.append(paramname)
+                if full_paramnames_map:
+                    paramnames_map[paramname] = paramname
+            elif n_line_parts == 2:  # two parameter names: original and
+                                     # substituted
+                paramname = line_parts[0].rstrip()
+                new_paramname = line_parts[1].lstrip()
+                paramnames.append(paramname)
+                paramnames_map[paramname] = new_paramname
+            else:
+                raise FileError(filename=filename, lineno=lineno,
+                                error_msg="invalid syntax", line=line)
+    return paramnames, paramnames_map

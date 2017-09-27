@@ -12,6 +12,7 @@
 - Added saving parameter sets to a CSV file.
 - Added saving parameter sets to a JSON file.
 - Added exporting parameters of multiple simulations to a file.
+- Added loading parameter names from a text file.
 - Added saving software versions to a JSON file.
 - Added generating simulation id based on local date and time.
 - Added creating directory structure for simulation.
