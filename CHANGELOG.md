@@ -17,6 +17,7 @@
 - Added generating simulation id based on local date and time.
 - Added creating directory structure for simulation.
 - Added launching simulation.
+- Added loading names of simulation directories from a text file.
 - Added generating random seed using OS-specific randomness source.
 - Added simulation launcher console script.
 - Added random seed generator console script.

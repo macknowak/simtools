@@ -6,8 +6,8 @@ import time
 
 import pytest
 
-from simtools.simrun import (generate_sim_id, generate_sim_dirname, make_dirs,
-                             norm_executable)
+from simtools.simrun import (generate_sim_id, generate_sim_dirname,
+                             load_sim_dirnames, make_dirs, norm_executable)
 
 
 @pytest.fixture
@@ -105,3 +105,28 @@ def test_norm_executable_rel_exist(tmpdir, executable, normal_executable):
     with tmpdir.as_cwd():
         normalized_executable = norm_executable(executable)
         assert normalized_executable == normal_executable
+
+
+def test_load_sim_dirnames(tmpdir):
+    sim_dirnames_file = tmpdir.join("dirnames.txt")
+    sim_dirnames_file.write(
+"""# Simulation directories
+
+20001020_020304
+    20001020_030405
+simulations/20001020_040506
+    simulations/20001020_050607/
+simulations\\20001020_060708\\
+    simulations\\20001020_070809
+
+    # End of simulation directories
+""")
+
+    sim_dirnames = load_sim_dirnames(str(sim_dirnames_file))
+    assert len(sim_dirnames) == 6
+    assert sim_dirnames[0] == "20001020_020304"
+    assert sim_dirnames[1] == "20001020_030405"
+    assert sim_dirnames[2] == os.path.join("simulations", "20001020_040506")
+    assert sim_dirnames[3] == os.path.join("simulations", "20001020_050607")
+    assert sim_dirnames[4] == os.path.join("simulations", "20001020_060708")
+    assert sim_dirnames[5] == os.path.join("simulations", "20001020_070809")

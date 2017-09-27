@@ -5,6 +5,7 @@ Simulation launch services provide the following functionality:
 
 - generating simulation id based on local date and time;
 - generating simulation directory name;
+- loading names of simulation directories from a text file;
 - creating directory structure for simulation;
 - normalizing the format of executable;
 - launching simulation.
@@ -87,3 +88,26 @@ def norm_executable(executable):
         executable[0] = os.path.abspath(executable[0])
 
     return executable
+
+
+def load_sim_dirnames(filename):
+    """Load names of simulation directories from a file."""
+    COMMENT_START_TOKEN = "#"
+
+    sim_dirnames = []
+    with open(filename) as sim_dirnames_file:
+        for line in sim_dirnames_file:
+            # Strip leading and trailing whitespace from the line
+            stripped_line = line.strip()
+
+            # If the stripped line is empty or contains only a comment, skip it
+            if (not stripped_line
+                or stripped_line.startswith(COMMENT_START_TOKEN)):
+                continue
+
+            # Assume that the stripped line contains a directory path and
+            # normalize it according to the platform
+            sim_dirname = os.path.normpath(stripped_line.replace("\\", os.sep))
+
+            sim_dirnames.append(sim_dirname)
+    return sim_dirnames
