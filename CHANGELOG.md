@@ -20,6 +20,7 @@
 - Added loading names of simulation directories from a text file.
 - Added generating random seed using OS-specific randomness source.
 - Added simulation launcher console script.
+- Added parameter exporter console script.
 - Added random seed generator console script.
 - Added hierarchy of SimTools exceptions.
 - Added package installer.

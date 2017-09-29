@@ -26,6 +26,17 @@ def file_r_type(filename):
     return filename
 
 
+def dir_r_type(dirname):
+    """Check if directory exists and is readable."""
+    if not os.path.isdir(dirname):
+        raise argparse.ArgumentTypeError(
+            "no such directory: '{}'".format(dirname))
+    if not os.access(dirname, os.R_OK):
+        raise argparse.ArgumentTypeError(
+            "permission denied: '{}'".format(dirname))
+    return dirname
+
+
 def dir_w_type(dirname):
     """Check if directory exists and is writable."""
     if not os.path.isdir(dirname):

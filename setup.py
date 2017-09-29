@@ -22,6 +22,7 @@ setup(
     packages=['simtools', 'simtools.bin'],
     entry_points={
         'console_scripts': [
+            'exppar = simtools.bin.exppar:main',
             'genseed = simtools.bin.genseed:main',
             'runsim = simtools.bin.runsim:main'
             ]
