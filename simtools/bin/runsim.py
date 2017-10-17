@@ -65,10 +65,16 @@ def parse_args():
         "--no-simid",
         dest='with_sim_id', action='store_false', default=True,
         help="do not pass simulation id to the model")
-    parser.add_argument(
+    copy_model_group = parser.add_mutually_exclusive_group()
+    copy_model_group.add_argument(
         "--copy-model",
         dest='copy_model', action='store_true',
         help="copy the model file to the simulation directory")
+    copy_model_group.add_argument(
+        "--copy-model-rename", metavar="MODELFILECOPY",
+        dest='copy_model_filename',
+        help="copy the model file to the simulation directory as "
+             "MODELFILECOPY")
     copy_params_group = parser.add_mutually_exclusive_group()
     copy_params_group.add_argument(
         "--copy-params",
@@ -91,6 +97,8 @@ def parse_args():
     if args.copy_params_filename and not args.params_filename:
         parser.error("argument --copy-params-rename: requires argument "
                      "-p/--params")
+    if args.copy_model_filename:
+        args.copy_model = True
     if args.copy_params_filename:
         args.copy_params = True
     return args
@@ -121,7 +129,11 @@ def main():
 
     # If necessary, copy the model file to the simulation directory
     if args.copy_model:
-        shutil.copy(model_path, sim_path)
+        if args.copy_model_filename:
+            shutil.copy(
+                model_path, os.path.join(sim_path, args.copy_model_filename))
+        else:
+            shutil.copy(model_path, sim_path)
 
     # If necessary, determine the absolute path to the parameter file
     if args.params_filename:
