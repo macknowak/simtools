@@ -69,10 +69,16 @@ def parse_args():
         "--copy-model",
         dest='copy_model', action='store_true',
         help="copy the model file to the simulation directory")
-    parser.add_argument(
+    copy_params_group = parser.add_mutually_exclusive_group()
+    copy_params_group.add_argument(
         "--copy-params",
         dest='copy_params', action='store_true',
         help="copy the parameter file to the simulation directory")
+    copy_params_group.add_argument(
+        "--copy-params-rename", metavar="PARAMFILECOPY",
+        dest='copy_params_filename',
+        help="copy the parameter file to the simulation directory as "
+             "PARAMFILECOPY")
     parser.add_argument(
         "model_filename", metavar="MODELFILE",
         type=file_r_type,
@@ -82,6 +88,11 @@ def parse_args():
         parser.error("permission denied: '{}'".format(args.model_filename))
     if args.copy_params and not args.params_filename:
         parser.error("argument --copy-params: requires argument -p/--params")
+    if args.copy_params_filename and not args.params_filename:
+        parser.error("argument --copy-params-rename: requires argument "
+                     "-p/--params")
+    if args.copy_params_filename:
+        args.copy_params = True
     return args
 
 
@@ -120,7 +131,11 @@ def main():
 
     # If necessary, copy the parameter file to the simulation directory
     if args.copy_params:
-        shutil.copy(params_path, sim_path)
+        if args.copy_params_filename:
+            shutil.copy(
+                params_path, os.path.join(sim_path, args.copy_params_filename))
+        else:
+            shutil.copy(params_path, sim_path)
 
     # If necessary, normalize the format of the executable
     if args.executable:
