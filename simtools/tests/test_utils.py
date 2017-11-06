@@ -11,11 +11,11 @@ from simtools.utils import save_platform, save_versions
 
 @pytest.fixture
 def versions_dict():
-    versions = {
+    versions_info = {
         'model': '1.0',
         'mypackage': '1.2.3dev4'
         }
-    return versions
+    return versions_info
 
 
 def test_save_platform_default(tmpdir):
@@ -78,7 +78,7 @@ def test_save_versions_dict(tmpdir, versions_dict):
         assert versions_json[v] == versions_dict[v]
 
 
-@pytest.mark.parametrize('versions_filename, versions', [
+@pytest.mark.parametrize('versions_filename, versions_info', [
     ("versions_tupletuple.json", (
         ('model', '1.0'),
         ('mypackage', '1.2.3dev4'))),
@@ -91,16 +91,16 @@ def test_save_versions_dict(tmpdir, versions_dict):
     ("versions_listlist.json", [
         ['model', '1.0'],
         ['mypackage', '1.2.3dev4']])])
-def test_save_versions_list_tuple(tmpdir, versions_filename, versions):
+def test_save_versions_list_tuple(tmpdir, versions_filename, versions_info):
     versions_file = tmpdir.join(versions_filename)
 
-    save_versions(str(versions_file), versions)
+    save_versions(str(versions_file), versions_info)
     versions_json = json.load(versions_file)
     for v, i in zip(('model', 'mypackage'), (0, 1)):
-        assert versions_json[v] == versions[i][1]
+        assert versions_json[v] == versions_info[i][1]
 
 
-@pytest.mark.parametrize('versions_filename, versions', [
+@pytest.mark.parametrize('versions_filename, versions_info', [
     ("versions_nonnested", ('model', '1.0')),
     ("versions_toofew1", (
         ('model', '1.0'),
@@ -111,11 +111,11 @@ def test_save_versions_list_tuple(tmpdir, versions_filename, versions):
     ("versions_toomany", (
         ('model', '1.0'),
         ('mypackage', '1.2.3', 'dev4')))])
-def test_save_versions_unpack(tmpdir, versions_filename, versions):
+def test_save_versions_unpack(tmpdir, versions_filename, versions_info):
     versions_file = tmpdir.join(versions_filename)
 
     with pytest.raises(ValueError):
-        save_versions(str(versions_file), versions)
+        save_versions(str(versions_file), versions_info)
 
 
 def test_save_versions_indent(tmpdir, versions_dict):

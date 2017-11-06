@@ -40,16 +40,16 @@ def save_platform(filename, **kwargs):
         json.dump(platform_info, platform_file, indent=indent, **kwargs)
 
 
-def save_versions(filename, versions, **kwargs):
+def save_versions(filename, versions_info, **kwargs):
     """Save software versions to a file."""
     DEFAULT_INDENT = 4
 
-    # If necessary, validate version information
-    if not isinstance(versions, dict):
+    # If necessary, validate software version information
+    if not isinstance(versions_info, dict):
         try:
-            iter(versions)
+            iter(versions_info)
         except TypeError:
-            raise TypeError("'versions' is not iterable.")
+            raise TypeError("'versions_info' is not iterable.")
 
     # If necessary, validate extra keyword arguments
     if kwargs:
@@ -58,16 +58,17 @@ def save_versions(filename, versions, **kwargs):
                 raise TypeError("save_versions() got an unexpected keyword "
                                 "argument '{}'.".format(arg))
 
-    # If necessary, convert version information to an ordered dictionary
-    if not isinstance(versions, dict):
+    # If necessary, convert software version information to an ordered
+    # dictionary
+    if not isinstance(versions_info, dict):
         try:
-            versions = collections.OrderedDict(versions)
+            versions_info = collections.OrderedDict(versions_info)
         except ValueError:
-            raise ValueError("Unpacking 'versions' failed.")
+            raise ValueError("Unpacking 'versions_info' failed.")
 
     # Determine indentation
     indent = kwargs.pop('indent', DEFAULT_INDENT)
 
-    # Save parameters to a JSON file
+    # Save software version information to a JSON file
     with open(filename, 'w') as versions_file:
-        json.dump(versions, versions_file, indent=indent, **kwargs)
+        json.dump(versions_info, versions_file, indent=indent, **kwargs)
