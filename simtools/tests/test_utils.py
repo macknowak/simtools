@@ -2,10 +2,11 @@
 """Unit tests of miscellaneous utilities."""
 
 import json
+import platform
 
 import pytest
 
-from simtools.utils import save_versions
+from simtools.utils import save_platform, save_versions
 
 
 @pytest.fixture
@@ -15,6 +16,57 @@ def versions_dict():
         'mypackage': '1.2.3dev4'
         }
     return versions
+
+
+def test_save_platform_default(tmpdir):
+    platform_file = tmpdir.join("platform_default.json")
+
+    save_platform(str(platform_file))
+    platform_json = json.load(platform_file)
+    platform_json['node'] == platform.node()
+    platform_json['machine'] == platform.machine()
+    platform_json['processor'] == platform.processor()
+    platform_json['system'] == platform.system()
+    platform_json['version'] == platform.version()
+    platform_json['release'] == platform.release()
+
+
+def test_save_platform_indent(tmpdir):
+    # Indent = 4
+    platform_file = tmpdir.join("platform_indent4.json")
+
+    save_platform(str(platform_file), indent=4)
+    n_bytes4 = platform_file.size()
+    n_lines4 = len(platform_file.readlines())
+    assert n_lines4 == 8
+
+    # Indent = 2
+    platform_file = tmpdir.join("platform_indent2.json")
+
+    save_platform(str(platform_file), indent=2)
+    n_bytes2 = platform_file.size()
+    assert n_bytes2 < n_bytes4
+    n_lines2 = len(platform_file.readlines())
+    assert n_lines2 == 8
+
+    # Indent = None
+    platform_file = tmpdir.join("platform_indentnone.json")
+
+    save_platform(str(platform_file), indent=None)
+    n_bytes_none = platform_file.size()
+    assert n_bytes_none < n_bytes2
+    n_lines_none = len(platform_file.readlines())
+    assert n_lines_none == 1
+
+
+@pytest.mark.parametrize('kwargs', [
+    {'fp': None},
+    {'obj': None}])
+def test_save_platform_forbid_kwargs(tmpdir, kwargs):
+    platform_file = tmpdir.join("platform_forbidkw.json")
+
+    with pytest.raises(TypeError):
+        save_platform(str(platform_file), **kwargs)
 
 
 def test_save_versions_dict(tmpdir, versions_dict):

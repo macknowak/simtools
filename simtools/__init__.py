@@ -14,5 +14,5 @@ from .params import (export_params, load_paramnames, load_params, ParamSets,
 from .random import generate_seed
 from .simrun import (generate_sim_dirname, generate_sim_id, load_sim_dirnames,
                      make_dirs, norm_executable, run_sim)
-from .utils import save_versions
+from .utils import save_platform, save_versions
 from . import argparse, params, random, simrun, utils

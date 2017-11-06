@@ -1,11 +1,43 @@
 # -*- coding: utf-8 -*-
 """Miscellaneous utilities.
 
-Miscellaneous utilities provide saving software versions to a JSON file.
+Miscellaneous utilities provide the following functionality:
+
+- saving platform information to a JSON file;
+- saving software versions to a JSON file.
 """
 
 import collections
 import json
+import platform
+
+
+def save_platform(filename, **kwargs):
+    """Save platform information to a file."""
+    DEFAULT_INDENT = 4
+
+    # If necessary, validate extra keyword arguments
+    if kwargs:
+        for arg in ('obj', 'fp'):
+            if arg in kwargs:
+                raise TypeError("save_platform() got an unexpected keyword "
+                                "argument '{}'.".format(arg))
+
+    # Retrieve platform information
+    platform_info = collections.OrderedDict()
+    platform_info['node'] = platform.node()
+    platform_info['machine'] = platform.machine()
+    platform_info['processor'] = platform.processor()
+    platform_info['system'] = platform.system()
+    platform_info['version'] = platform.version()
+    platform_info['release'] = platform.release()
+
+    # Determine indentation
+    indent = kwargs.pop('indent', DEFAULT_INDENT)
+
+    # Save platform information to a JSON file
+    with open(filename, 'w') as platform_file:
+        json.dump(platform_info, platform_file, indent=indent, **kwargs)
 
 
 def save_versions(filename, versions, **kwargs):
