@@ -8,7 +8,7 @@ Python.
 __version__ = '0.1.0.dev1'
 __author__ = "Przemyslaw (Mack) Nowak"
 
-from .argparse import parse_args
+from .argparse import parse_args, parse_known_args
 from .params import (export_params, load_paramnames, load_params, ParamSets,
                      Params)
 from .random import generate_seed
