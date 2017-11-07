@@ -94,17 +94,17 @@ all_options = {
     }
 
 
-def parse_args(allow_options):
+def parse_args(allowed_options):
     """Parse command line arguments."""
     # Check if all allowed options are supported
     parser = argparse.ArgumentParser()
-    unsupported_options = set(allow_options) - set(all_options)
+    unsupported_options = set(allowed_options) - set(all_options)
     if unsupported_options:
         parser.error(
             "unsupported options: {}".format(' '.join(unsupported_options)))
 
     # Process command line arguments
-    for option in allow_options:
+    for option in allowed_options:
         opt = all_options[option]
         parser.add_argument(*opt['arg'], **opt['spec'])
     return Dict(vars(parser.parse_args()))
