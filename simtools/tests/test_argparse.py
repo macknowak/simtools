@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Unit tests of command line argument parsing services."""
 
+import argparse
 import os
 import sys
 
@@ -163,6 +164,64 @@ def test_parse_args_extra_args(monkeypatch, argv):
 
     with pytest.raises(SystemExit):
         options = parse_args(allowed_options)
+
+
+def test_parse_args_parser(monkeypatch):
+    allowed_options = ['sim_id', 'data_dirname', 'save_data']
+
+    # Mixed allowed options and additional arguments
+    argv = ["model.py", "-x", "1.5", "-y", "0", "-i", "20001020_102030",
+            "--transform", "scale", "-s", "-v"]
+    monkeypatch.setattr(sys, 'argv', argv)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-x", type=float)
+    parser.add_argument("-y", type=int)
+    parser.add_argument("--transform")
+    parser.add_argument("-v", action='store_true')
+
+    options = parse_args(allowed_options, parser=parser)
+    with pytest.raises(AttributeError):
+        options.params_filename
+    assert options.sim_id == "20001020_102030"
+    assert options.data_dirname is None
+    assert options.save_data == True
+    with pytest.raises(AttributeError):
+        options.only_test_params
+    assert options.x == 1.5
+    assert options.y == 0
+    assert options.transform == 'scale'
+    assert options.v == True
+
+    # Only additional arguments
+    argv = ["model.py", "-x", "1.5", "-y", "0", "-v"]
+    monkeypatch.setattr(sys, 'argv', argv)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-x", type=float)
+    parser.add_argument("-y", type=int)
+    parser.add_argument("--transform")
+    parser.add_argument("-v", action='store_true')
+
+    options = parse_args(allowed_options, parser=parser)
+    with pytest.raises(AttributeError):
+        options.params_filename
+    assert options.sim_id is None
+    assert options.data_dirname is None
+    assert options.save_data == False
+    with pytest.raises(AttributeError):
+        options.only_test_params
+    assert options.x == 1.5
+    assert options.y == 0
+    assert options.transform == None
+    assert options.v == True
+
+    # Only additional arguments with some unsupported
+    argv = ["model.py", "-x", "1.5", "-y", "0", "-v"]
+    monkeypatch.setattr(sys, 'argv', argv)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-v", action='store_true')
+
+    with pytest.raises(SystemExit):
+        options = parse_args(allowed_options, parser=parser)
 
 
 @pytest.mark.parametrize('argv', [
@@ -353,3 +412,75 @@ def test_parse_known_args_extra_args(monkeypatch):
     with pytest.raises(AttributeError):
         options.only_test_params
     assert extra_args == argv[1:]
+
+
+def test_parse_known_args_parser(monkeypatch):
+    allowed_options = ['sim_id', 'data_dirname', 'save_data']
+
+    # Mixed allowed options and additional arguments
+    argv = ["model.py", "-x", "1.5", "-y", "0", "-i", "20001020_102030",
+            "--transform", "scale", "-s", "-v"]
+    monkeypatch.setattr(sys, 'argv', argv)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-x", type=float)
+    parser.add_argument("-y", type=int)
+    parser.add_argument("--transform")
+    parser.add_argument("-v", action='store_true')
+
+    options, extra_args = parse_known_args(allowed_options, parser=parser)
+    with pytest.raises(AttributeError):
+        options.params_filename
+    assert options.sim_id == "20001020_102030"
+    assert options.data_dirname is None
+    assert options.save_data == True
+    with pytest.raises(AttributeError):
+        options.only_test_params
+    assert options.x == 1.5
+    assert options.y == 0
+    assert options.transform == 'scale'
+    assert options.v == True
+    assert extra_args == []
+
+    # Only additional arguments
+    argv = ["model.py", "-x", "1.5", "-y", "0", "-v"]
+    monkeypatch.setattr(sys, 'argv', argv)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-x", type=float)
+    parser.add_argument("-y", type=int)
+    parser.add_argument("--transform")
+    parser.add_argument("-v", action='store_true')
+
+    options, extra_args = parse_known_args(allowed_options, parser=parser)
+    with pytest.raises(AttributeError):
+        options.params_filename
+    assert options.sim_id is None
+    assert options.data_dirname is None
+    assert options.save_data == False
+    with pytest.raises(AttributeError):
+        options.only_test_params
+    assert options.x == 1.5
+    assert options.y == 0
+    assert options.transform == None
+    assert options.v == True
+    assert extra_args == []
+
+    # Only additional arguments with some unsupported
+    argv = ["model.py", "-x", "1.5", "-y", "0", "-v"]
+    monkeypatch.setattr(sys, 'argv', argv)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-v", action='store_true')
+
+    options, extra_args = parse_known_args(allowed_options, parser=parser)
+    with pytest.raises(AttributeError):
+        options.params_filename
+    assert options.sim_id is None
+    assert options.data_dirname is None
+    assert options.save_data == False
+    with pytest.raises(AttributeError):
+        options.only_test_params
+    with pytest.raises(AttributeError):
+        assert options.x
+    with pytest.raises(AttributeError):
+        assert options.y
+    assert options.v == True
+    assert extra_args == ["-x", "1.5", "-y", "0"]

@@ -94,23 +94,26 @@ all_options = {
     }
 
 
-def parse_args(allowed_options):
-    """Parse command line arguments with extra arguments not allowed."""
-    parser = _make_parser(allowed_options, allow_extra_args=False)
+def parse_args(allowed_options, parser=None):
+    """Parse command line arguments."""
+    parser = _make_parser(allowed_options, allow_extra_args=False,
+                          parser=parser)
     return Dict(vars(parser.parse_args()))
 
 
-def parse_known_args(allowed_options):
-    """Parse command line arguments with extra arguments allowed."""
-    parser = _make_parser(allowed_options, allow_extra_args=True)
+def parse_known_args(allowed_options, parser=None):
+    """Parse command line arguments with extra arguments retained."""
+    parser = _make_parser(allowed_options, allow_extra_args=True,
+                          parser=parser)
     args, extra_args = parser.parse_known_args()
     return Dict(vars(args)), extra_args
 
 
-def _make_parser(allowed_options, allow_extra_args):
-    """Create parser."""
-    # Create parser
-    parser = argparse.ArgumentParser()
+def _make_parser(allowed_options, allow_extra_args, parser):
+    """Create or update parser."""
+    # If necessary, create parser
+    if parser is None:
+        parser = argparse.ArgumentParser()
 
     # Check if all allowed options are supported
     unsupported_options = set(allowed_options) - set(all_options)
