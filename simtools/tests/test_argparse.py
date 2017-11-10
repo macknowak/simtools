@@ -166,6 +166,52 @@ def test_parse_args_extra_args(monkeypatch, argv):
         options = parse_args(allowed_options)
 
 
+def test_parse_args_only_long_names(monkeypatch, tmpdir):
+    datadir = tmpdir.mkdir("data")
+    tmpdir.join("params.py").write("")
+    allowed_options = ['params_filename', 'sim_id', 'save_data',
+                       'data_dirname', 'only_test_params']
+
+    with tmpdir.as_cwd():
+        # Long names of run options
+        argv = ["model.py", "--params", "params.py", "--simid",
+                "20001020_102030", "--save", "--data-dir", str(datadir)]
+        monkeypatch.setattr(sys, 'argv', argv)
+
+        options = parse_args(allowed_options, only_long_names=True)
+        assert options.params_filename == "params.py"
+        assert options.sim_id == "20001020_102030"
+        assert options.save_data == True
+        assert options.data_dirname == str(datadir)
+        assert options.only_test_params == False
+
+        # Short names of run options
+        argv = ["model.py", "-p", "params.py", "-i", "20001020_102030", "-s",
+                "-d", str(datadir)]
+        monkeypatch.setattr(sys, 'argv', argv)
+
+        with pytest.raises(SystemExit):
+            options = parse_args(allowed_options, only_long_names=True)
+
+        # Long names of verifying parameters options
+        argv = ["model.py", "--params", "params.py", "--only-params"]
+        monkeypatch.setattr(sys, 'argv', argv)
+
+        options = parse_args(allowed_options, only_long_names=True)
+        assert options.params_filename == "params.py"
+        assert options.sim_id == None
+        assert options.save_data == False
+        assert options.data_dirname == None
+        assert options.only_test_params == True
+
+        # Short names of verifying parameters options
+        argv = ["model.py", "-p", "params.py", "-t"]
+        monkeypatch.setattr(sys, 'argv', argv)
+
+        with pytest.raises(SystemExit):
+            options = parse_args(allowed_options, only_long_names=True)
+
+
 def test_parse_args_parser(monkeypatch):
     allowed_options = ['sim_id', 'data_dirname', 'save_data']
 
@@ -412,6 +458,68 @@ def test_parse_known_args_extra_args(monkeypatch):
     with pytest.raises(AttributeError):
         options.only_test_params
     assert extra_args == argv[1:]
+
+
+def test_parse_known_args_only_long_names(monkeypatch, tmpdir):
+    datadir = tmpdir.mkdir("data")
+    tmpdir.join("params.py").write("")
+    allowed_options = ['params_filename', 'sim_id', 'save_data',
+                       'data_dirname', 'only_test_params']
+
+    with tmpdir.as_cwd():
+        # Long names of run options
+        argv = ["model.py", "--params", "params.py", "--simid",
+                "20001020_102030", "--save", "--data-dir", str(datadir)]
+        monkeypatch.setattr(sys, 'argv', argv)
+
+        options, extra_args = parse_known_args(allowed_options,
+                                               only_long_names=True)
+        assert options.params_filename == "params.py"
+        assert options.sim_id == "20001020_102030"
+        assert options.save_data == True
+        assert options.data_dirname == str(datadir)
+        assert options.only_test_params == False
+        assert extra_args == []
+
+        # Short names of run options
+        argv = ["model.py", "-p", "params.py", "-i", "20001020_102030", "-s",
+                "-d", str(datadir)]
+        monkeypatch.setattr(sys, 'argv', argv)
+
+        options, extra_args = parse_known_args(allowed_options,
+                                               only_long_names=True)
+        assert options.params_filename == None
+        assert options.sim_id == None
+        assert options.save_data == False
+        assert options.data_dirname == None
+        assert options.only_test_params == False
+        assert extra_args == argv[1:]
+
+        # Long names of verifying parameters options
+        argv = ["model.py", "--params", "params.py", "--only-params"]
+        monkeypatch.setattr(sys, 'argv', argv)
+
+        options, extra_args = parse_known_args(allowed_options,
+                                               only_long_names=True)
+        assert options.params_filename == "params.py"
+        assert options.sim_id == None
+        assert options.save_data == False
+        assert options.data_dirname == None
+        assert options.only_test_params == True
+        assert extra_args == []
+
+        # Short names of verifying parameters options
+        argv = ["model.py", "-p", "params.py", "-t"]
+        monkeypatch.setattr(sys, 'argv', argv)
+
+        options, extra_args = parse_known_args(allowed_options,
+                                               only_long_names=True)
+        assert options.params_filename == None
+        assert options.sim_id == None
+        assert options.save_data == False
+        assert options.data_dirname == None
+        assert options.only_test_params == False
+        assert extra_args == argv[1:]
 
 
 def test_parse_known_args_parser(monkeypatch):

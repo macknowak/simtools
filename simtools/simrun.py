@@ -69,12 +69,12 @@ def run_sim(model_filename, params_filename=None, sim_id=None,
             cmd += executable
     cmd.append(model_filename)
     if params_filename:
-        cmd += [options['params_filename']['arg'][0], params_filename]
+        cmd += [options['params_filename']['arg'][1], params_filename]
     if sim_id:
-        cmd += [options['sim_id']['arg'][0], sim_id]
+        cmd += [options['sim_id']['arg'][1], sim_id]
     if data_dirname:
-        cmd += [options['data_dirname']['arg'][0], data_dirname]
-    cmd.append(options['save_data']['arg'][0])
+        cmd += [options['data_dirname']['arg'][1], data_dirname]
+    cmd.append(options['save_data']['arg'][1])
     return subprocess.call(cmd)
 
 

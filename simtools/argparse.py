@@ -94,22 +94,22 @@ all_options = {
     }
 
 
-def parse_args(allowed_options, parser=None):
+def parse_args(allowed_options, only_long_names=False, parser=None):
     """Parse command line arguments."""
     parser = _make_parser(allowed_options, allow_extra_args=False,
-                          parser=parser)
+                          only_long_names=only_long_names, parser=parser)
     return Dict(vars(parser.parse_args()))
 
 
-def parse_known_args(allowed_options, parser=None):
+def parse_known_args(allowed_options, only_long_names=False, parser=None):
     """Parse command line arguments with extra arguments retained."""
     parser = _make_parser(allowed_options, allow_extra_args=True,
-                          parser=parser)
+                          only_long_names=only_long_names, parser=parser)
     args, extra_args = parser.parse_known_args()
     return Dict(vars(args)), extra_args
 
 
-def _make_parser(allowed_options, allow_extra_args, parser):
+def _make_parser(allowed_options, allow_extra_args, only_long_names, parser):
     """Create or update parser."""
     # If necessary, create parser
     if parser is None:
@@ -125,6 +125,9 @@ def _make_parser(allowed_options, allow_extra_args, parser):
     # allowed options
     for option in allowed_options:
         opt = all_options[option]
-        parser.add_argument(*opt['arg'], **opt['spec'])
+        if only_long_names:
+            parser.add_argument(opt['arg'][1], **opt['spec'])
+        else:
+            parser.add_argument(*opt['arg'], **opt['spec'])
 
     return parser
