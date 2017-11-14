@@ -50,7 +50,7 @@ def make_dirs(sim_dirname, sim_master_dirname=None, data_dirname=None):
 
 
 def run_sim(model_filename, params_filename=None, sim_id=None,
-            data_dirname=None, executable=None):
+            data_dirname=None, executable=None, model_args=None):
     """Launch simulation."""
     cmd = []
     if executable:
@@ -75,6 +75,8 @@ def run_sim(model_filename, params_filename=None, sim_id=None,
     if data_dirname:
         cmd += [options['data_dirname']['arg'][1], data_dirname]
     cmd.append(options['save_data']['arg'][1])
+    if model_args:
+        cmd += model_args
     return subprocess.call(cmd)
 
 
