@@ -89,6 +89,10 @@ def parse_args():
         "model_filename", metavar="MODELFILE",
         type=file_r_type,
         help="model file")
+    parser.add_argument(
+        "model_args", metavar="...",
+        nargs=argparse.REMAINDER,
+        help="optional additional arguments passed to the model file")
     args = parser.parse_args()
     if not args.executable and not os.access(args.model_filename, os.X_OK):
         parser.error("permission denied: '{}'".format(args.model_filename))
@@ -160,7 +164,7 @@ def main():
 
     # Launch simulation
     return run_sim(model_path, params_path, sim_id, args.data_dirname,
-                   executable)
+                   executable, args.model_args)
 
 
 if __name__ == '__main__':
