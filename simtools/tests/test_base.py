@@ -3,7 +3,7 @@
 
 import pytest
 
-from simtools.base import Dict, is_iterable
+from simtools.base import Dict, is_iterable, is_string
 
 
 def test_is_iterable():
@@ -34,6 +34,24 @@ def test_is_iterable():
     # String
     obj = "abc"
     assert is_iterable(obj) == True
+
+
+def test_is_string():
+    # String
+    obj = "abc"
+    assert is_string(obj) == True
+
+    # Integer
+    obj = 1
+    assert is_string(obj) == False
+
+    # List of strings
+    obj = ["abc", "def", "ghi"]
+    assert is_string(obj) == False
+
+    # Dictionary
+    obj = {"abc": 1, "def": 2, "ghi": 3}
+    assert is_string(obj) == False
 
 
 def test_dict_attr_access():

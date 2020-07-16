@@ -8,7 +8,8 @@ structure:
 
 They also provide the following functionality:
 
-- checking if object is an iterable.
+- checking if object is an iterable;
+- checking if object is a string.
 """
 
 
@@ -20,6 +21,15 @@ def is_iterable(obj):
         return False
     else:
         return True
+
+
+def is_string(obj):
+    """Check if object is a string."""
+    try:
+        basestring
+    except NameError:
+        basestring = str
+    return isinstance(obj, basestring)
 
 
 class Dict(dict):

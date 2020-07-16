@@ -19,7 +19,7 @@ import json
 import sys
 import types
 
-from simtools.base import Dict, is_iterable
+from simtools.base import Dict, is_iterable, is_string
 from simtools.exceptions import FileError
 
 
@@ -44,11 +44,7 @@ class Params(Dict):
         if paramnames is not None:
             if not is_iterable(paramnames):
                 raise TypeError("'paramnames' is not iterable.")
-            try:
-                basestring
-            except NameError:
-                basestring = str
-            if isinstance(paramnames, basestring):
+            if is_string(paramnames):
                 raise TypeError("'paramnames' is a string.")
             if len(paramnames) > len(set(paramnames)):
                 raise ValueError("'paramnames' contains duplicate values.")
@@ -170,11 +166,7 @@ class ParamSets(collections.MutableSequence):
         # Validate names of parameters to be saved
         if not is_iterable(paramnames):
             raise TypeError("'paramnames' is not iterable.")
-        try:
-            basestring
-        except NameError:
-            basestring = str
-        if isinstance(paramnames, basestring):
+        if is_string(paramnames):
             raise TypeError("'paramnames' is a string.")
         if len(paramnames) > len(set(paramnames)):
             raise ValueError("'paramnames' contains duplicate values.")
