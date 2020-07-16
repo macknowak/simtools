@@ -17,6 +17,7 @@ import subprocess
 import time
 
 from simtools.argparse import all_options as options
+from simtools.base import is_iterable
 
 TMP_DIR_PREFIX = "_"
 
@@ -61,9 +62,7 @@ def run_sim(model_filename, params_filename=None, sim_id=None,
         if isinstance(executable, basestring):
             cmd.append(executable)
         else:
-            try:
-                iter(executable)
-            except TypeError:
+            if not is_iterable(executable):
                 raise TypeError(
                     "'executable' is neither a string nor iterable.")
             cmd += executable

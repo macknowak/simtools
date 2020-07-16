@@ -11,6 +11,8 @@ import collections
 import json
 import platform
 
+from simtools.base import is_iterable
+
 
 def save_platform(filename, **kwargs):
     """Save platform information to a file."""
@@ -46,9 +48,7 @@ def save_versions(filename, versions_info, **kwargs):
 
     # If necessary, validate software version information
     if not isinstance(versions_info, dict):
-        try:
-            iter(versions_info)
-        except TypeError:
+        if not is_iterable(versions_info):
             raise TypeError("'versions_info' is not iterable.")
 
     # If necessary, validate extra keyword arguments

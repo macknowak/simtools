@@ -1,9 +1,25 @@
 # -*- coding: utf-8 -*-
-"""Assorted base data structures.
+"""Assorted base data structures and common functions.
 
-Assorted base data structures provide a dictionary with access to values
-through attributes.
+Assorted base data structures and common functions provide the following data
+structure:
+
+- dictionary with access to values through attributes.
+
+They also provide the following functionality:
+
+- checking if object is an iterable.
 """
+
+
+def is_iterable(obj):
+    """Check if object is an iterable."""
+    try:
+        iter(obj)
+    except TypeError:
+        return False
+    else:
+        return True
 
 
 class Dict(dict):

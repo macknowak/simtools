@@ -19,7 +19,7 @@ import json
 import sys
 import types
 
-from simtools.base import Dict
+from simtools.base import Dict, is_iterable
 from simtools.exceptions import FileError
 
 
@@ -42,9 +42,7 @@ class Params(Dict):
 
         # If necessary, validate names of parameters to be saved
         if paramnames is not None:
-            try:
-                iter(paramnames)
-            except TypeError:
+            if not is_iterable(paramnames):
                 raise TypeError("'paramnames' is not iterable.")
             try:
                 basestring
@@ -170,9 +168,7 @@ class ParamSets(collections.MutableSequence):
              with_numbers=False, **kwargs):
         """Save parameter sets to a file."""
         # Validate names of parameters to be saved
-        try:
-            iter(paramnames)
-        except TypeError:
+        if not is_iterable(paramnames):
             raise TypeError("'paramnames' is not iterable.")
         try:
             basestring
