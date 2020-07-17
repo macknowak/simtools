@@ -159,8 +159,8 @@ p2 = 5 / 0
     with pytest.raises(FileError):
         p.load(str(params_file))
 
-    # Undefined name
-    params_file = tmpdir.join("params_undef_name.py")
+    # Undefined value
+    params_file = tmpdir.join("params_undef_val.py")
     params_file.write(
 """p1 = 5
 p2
@@ -187,7 +187,7 @@ p3 = "abc"
 
 
 def test_params_load_no_ext(tmpdir):
-    params_file = tmpdir.join("params_noext")
+    params_file = tmpdir.join("params_no_ext")
     p = Params()
 
     with pytest.raises(ValueError):
@@ -227,8 +227,8 @@ def test_params_save_paramnames(tmpdir, params):
         with pytest.raises(KeyError):
             assert params_json[p] == params[p]
 
-    # Not iterable
-    params_file = tmpdir.join("params_notiter.json")
+    # Uniterable
+    params_file = tmpdir.join("params_uniter.json")
     paramnames = 1
 
     with pytest.raises(TypeError):
@@ -258,7 +258,7 @@ def test_params_save_paramnames(tmpdir, params):
 
 def test_params_save_indent(tmpdir, params):
     # Indent = 4
-    params_file = tmpdir.join("params_indent4.json")
+    params_file = tmpdir.join("params_indent_4.json")
 
     params.save(str(params_file), indent=4)
     n_bytes4 = params_file.size()
@@ -266,7 +266,7 @@ def test_params_save_indent(tmpdir, params):
     assert n_lines4 == 28
 
     # Indent = 2
-    params_file = tmpdir.join("params_indent2.json")
+    params_file = tmpdir.join("params_indent_2.json")
 
     params.save(str(params_file), indent=2)
     n_bytes2 = params_file.size()
@@ -275,7 +275,7 @@ def test_params_save_indent(tmpdir, params):
     assert n_lines2 == 28
 
     # Indent = None
-    params_file = tmpdir.join("params_indentnone.json")
+    params_file = tmpdir.join("params_indent_none.json")
 
     params.save(str(params_file), indent=None)
     n_bytes_none = params_file.size()
@@ -288,7 +288,7 @@ def test_params_save_indent(tmpdir, params):
     {'fp': None},
     {'obj': None}])
 def test_params_save_forbid_kwargs(tmpdir, params, kwargs):
-    params_file = tmpdir.join("params_forbidkw.json")
+    params_file = tmpdir.join("params_forbid_kwargs.json")
 
     with pytest.raises(TypeError):
         params.save(str(params_file), **kwargs)
@@ -438,7 +438,7 @@ def test_paramsets_save_csv(tmpdir):
                 assert csv_row[p] == str(paramset[p])
 
     # Without header and without record numbers
-    paramsets_file = tmpdir.join("paramsets.csv")
+    paramsets_file = tmpdir.join("paramsets_no_head_no_num.csv")
 
     paramsets.save(str(paramsets_file), ['p1', 'p2', 'p3', 'p4', 'p5'],
                    with_numbers=False, with_header=False)
@@ -453,7 +453,7 @@ def test_paramsets_save_csv(tmpdir):
                 assert csv_row[p] == str(paramset[p])
 
     # Without header and with record numbers
-    paramsets_file = tmpdir.join("paramsets_num.csv")
+    paramsets_file = tmpdir.join("paramsets_no_head_num.csv")
 
     paramsets.save(str(paramsets_file), ['p1', 'p2', 'p3', 'p4', 'p5'],
                    with_numbers=True, with_header=False)
@@ -519,8 +519,8 @@ def test_paramsets_save_csv_paramnames(tmpdir):
                 with pytest.raises(KeyError):
                     assert csv_row[p] == str(paramset[p])
 
-    # Not iterable
-    paramsets_file = tmpdir.join("paramsets_notiter.csv")
+    # Uniterable
+    paramsets_file = tmpdir.join("paramsets_uniter.csv")
     paramnames = 1
 
     with pytest.raises(TypeError):
@@ -640,7 +640,7 @@ def test_paramsets_save_csv_map(tmpdir):
 
 
 def test_paramsets_save_csv_invalid_kwargs(tmpdir):
-    paramsets_file = tmpdir.join("paramsets_invalidkw.csv")
+    paramsets_file = tmpdir.join("paramsets_invalid_kwargs.csv")
     p0 = Params({'p1': 1, 'p2': 2.5, 'p3': "abc"})
     p1 = Params({'p1': 10, 'p2': 20.5, 'p3': "def"})
     paramsets = ParamSets()
@@ -731,8 +731,8 @@ def test_paramsets_save_json_paramnames(tmpdir):
             with pytest.raises(KeyError):
                 assert paramset_json[p] == paramset[p]
 
-    # Not iterable
-    paramsets_file = tmpdir.join("paramsets_notiter.json")
+    # Uniterable
+    paramsets_file = tmpdir.join("paramsets_uniter.json")
     paramnames = 1
 
     with pytest.raises(TypeError):
@@ -853,7 +853,7 @@ def test_paramsets_save_json_map(tmpdir):
 
 def test_paramsets_save_json_indent(tmpdir):
     # Indent = 4
-    paramsets_file = tmpdir.join("paramsets_indent4.json")
+    paramsets_file = tmpdir.join("paramsets_indent_4.json")
     p0 = Params({'p1': 1, 'p2': 2.5, 'p3': "abc"})
     p1 = Params({'p1': 10, 'p2': 20.5, 'p3': "def"})
     paramsets = ParamSets()
@@ -866,7 +866,7 @@ def test_paramsets_save_json_indent(tmpdir):
     assert n_lines4 == 12
 
     # Indent = 2
-    paramsets_file = tmpdir.join("paramsets_indent2.json")
+    paramsets_file = tmpdir.join("paramsets_indent_2.json")
 
     paramsets.save(str(paramsets_file), ['p1', 'p2', 'p3'], indent=2)
     n_bytes2 = paramsets_file.size()
@@ -875,7 +875,7 @@ def test_paramsets_save_json_indent(tmpdir):
     assert n_lines2 == 12
 
     # Indent = None
-    paramsets_file = tmpdir.join("paramsets_indentnone.json")
+    paramsets_file = tmpdir.join("paramsets_indent_none.json")
 
     paramsets.save(str(paramsets_file), ['p1', 'p2', 'p3'], indent=None)
     n_bytes_none = paramsets_file.size()
@@ -889,7 +889,7 @@ def test_paramsets_save_json_indent(tmpdir):
     {'obj': None},
     {'with_header': False}])
 def test_paramsets_save_json_invalid_kwargs(tmpdir, kwargs):
-    paramsets_file = tmpdir.join("paramsets_invalidkw.json")
+    paramsets_file = tmpdir.join("paramsets_invalid_kwargs.json")
     p0 = Params({'p1': 1, 'p2': 2.5, 'p3': "abc"})
     p1 = Params({'p1': 10, 'p2': 20.5, 'p3': "def"})
     paramsets = ParamSets()
@@ -902,7 +902,7 @@ def test_paramsets_save_json_invalid_kwargs(tmpdir, kwargs):
 
 def test_export_params_csv(tmpdir):
     # All parameters
-    export_file = tmpdir.join("params_export.csv")
+    export_file = tmpdir.join("params_export_all.csv")
     p0 = Params({'p1': 1, 'p2': 2.5, 'p3': "abc", 'p4': "", 'p5': None})
     params_file0 = tmpdir.mkdir("20001020_060708").join("params.json")
     params_file0.write(
@@ -933,7 +933,7 @@ p5 = 10
                 assert csv_row[p] == str(params[p])
 
     # Some parameters
-    export_file = tmpdir.join("params_some.csv")
+    export_file = tmpdir.join("params_export_some.csv")
     paramnames = ['p1', 'p3', 'p5']
 
     export_params(str(export_file), params_paths, paramnames)
@@ -947,7 +947,7 @@ p5 = 10
                     assert csv_row[p] == str(params[p])
 
     # Mapping of parameter names
-    export_file = tmpdir.join("params_map.csv")
+    export_file = tmpdir.join("params_export_map.csv")
     paramnames = ['p1', 'p2', 'p3', 'p4', 'p5']
     paramnames_map = {'p1': 'p_a', 'p2': 'p_b', 'p3': 'p_c', 'p4': 'p_d',
                       'p5': 'p_e'}
@@ -961,7 +961,7 @@ p5 = 10
                 assert csv_row[p_csv] == str(params[p])
 
     # With record numbers
-    export_file = tmpdir.join("params_num.csv")
+    export_file = tmpdir.join("params_export_num.csv")
     paramnames = ['p1', 'p2', 'p3', 'p4', 'p5']
 
     export_params(str(export_file), params_paths, paramnames,
@@ -975,7 +975,7 @@ p5 = 10
                 assert csv_row[p] == str(params[p])
 
     # Without header
-    export_file = tmpdir.join("params_nohead.csv")
+    export_file = tmpdir.join("params_export_no_head.csv")
     paramnames = ['p1', 'p2', 'p3', 'p4', 'p5']
 
     export_params(str(export_file), params_paths, paramnames,
@@ -990,7 +990,7 @@ p5 = 10
 
 
 def test_export_params_csv_upper(tmpdir):
-    export_file = tmpdir.join("PARAMS_UPPER.CSV")
+    export_file = tmpdir.join("PARAMS_EXPORT_UPPER.CSV")
     p0 = Params({'p1': 1, 'p2': 2.5, 'p3': "abc"})
     params_file0 = tmpdir.mkdir("20001020_060708").join("PARAMS.JSON")
     params_file0.write(
@@ -1019,7 +1019,7 @@ p3 = "def"
 
 def test_export_params_json(tmpdir):
     # All parameters
-    export_file = tmpdir.join("params_export.json")
+    export_file = tmpdir.join("params_export_all.json")
     p0 = Params({'p1': 1, 'p2': 2.5, 'p3': "abc", 'p4': "", 'p5': None})
     params_file0 = tmpdir.mkdir("20001020_060708").join("params.json")
     params_file0.write(
@@ -1049,7 +1049,7 @@ p5 = 10
             assert params_json[p] == params[p]
 
     # Some parameters
-    export_file = tmpdir.join("params_some.json")
+    export_file = tmpdir.join("params_export_some.json")
     paramnames = ['p1', 'p3', 'p5']
 
     export_params(str(export_file), params_paths, paramnames)
@@ -1062,7 +1062,7 @@ p5 = 10
                     assert params_json[p] == params[p]
 
     # Mapping of parameter names
-    export_file = tmpdir.join("params_map.json")
+    export_file = tmpdir.join("params_export_map.json")
     paramnames = ['p1', 'p2', 'p3', 'p4', 'p5']
     paramnames_map = {'p1': 'p_a', 'p2': 'p_b', 'p3': 'p_c', 'p4': 'p_d',
                       'p5': 'p_e'}
@@ -1075,7 +1075,7 @@ p5 = 10
             assert params_json[p_json] == params[p]
 
     # With record numbers
-    export_file = tmpdir.join("params_num.json")
+    export_file = tmpdir.join("params_export_num.json")
     paramnames = ['p1', 'p2', 'p3', 'p4', 'p5']
 
     export_params(str(export_file), params_paths, paramnames,
@@ -1088,7 +1088,7 @@ p5 = 10
             assert params_json[p] == params[p]
 
     # Indent
-    export_file = tmpdir.join("params_indentnone.json")
+    export_file = tmpdir.join("params_export_indent_none.json")
     paramnames = ['p1', 'p2', 'p3', 'p4', 'p5']
 
     export_params(str(export_file), params_paths, paramnames, indent=None)
@@ -1097,7 +1097,7 @@ p5 = 10
 
 
 def test_export_params_json_upper(tmpdir):
-    export_file = tmpdir.join("PARAMS_UPPER.JSON")
+    export_file = tmpdir.join("PARAMS_EXPORT_UPPER.JSON")
     p0 = Params({'p1': 1, 'p2': 2.5, 'p3': "abc"})
     params_file0 = tmpdir.mkdir("20001020_060708").join("PARAMS.JSON")
     params_file0.write(
@@ -1124,7 +1124,7 @@ p3 = "def"
 
 
 def test_export_params_no_ext(tmpdir):
-    export_file = tmpdir.join("params_noext")
+    export_file = tmpdir.join("params_export_no_ext")
     params_file0 = tmpdir.mkdir("20001020_060708").join("params.json")
     params_file0.write(
 """{

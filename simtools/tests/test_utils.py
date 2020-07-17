@@ -33,7 +33,7 @@ def test_save_platform_default(tmpdir):
 
 def test_save_platform_indent(tmpdir):
     # Indent = 4
-    platform_file = tmpdir.join("platform_indent4.json")
+    platform_file = tmpdir.join("platform_indent_4.json")
 
     save_platform(str(platform_file), indent=4)
     n_bytes4 = platform_file.size()
@@ -41,7 +41,7 @@ def test_save_platform_indent(tmpdir):
     assert n_lines4 == 8
 
     # Indent = 2
-    platform_file = tmpdir.join("platform_indent2.json")
+    platform_file = tmpdir.join("platform_indent_2.json")
 
     save_platform(str(platform_file), indent=2)
     n_bytes2 = platform_file.size()
@@ -50,7 +50,7 @@ def test_save_platform_indent(tmpdir):
     assert n_lines2 == 8
 
     # Indent = None
-    platform_file = tmpdir.join("platform_indentnone.json")
+    platform_file = tmpdir.join("platform_indent_none.json")
 
     save_platform(str(platform_file), indent=None)
     n_bytes_none = platform_file.size()
@@ -63,7 +63,7 @@ def test_save_platform_indent(tmpdir):
     {'fp': None},
     {'obj': None}])
 def test_save_platform_forbid_kwargs(tmpdir, kwargs):
-    platform_file = tmpdir.join("platform_forbidkw.json")
+    platform_file = tmpdir.join("platform_forbid_kwargs.json")
 
     with pytest.raises(TypeError):
         save_platform(str(platform_file), **kwargs)
@@ -79,16 +79,16 @@ def test_save_versions_dict(tmpdir, versions_dict):
 
 
 @pytest.mark.parametrize('versions_filename, versions_info', [
-    ("versions_tupletuple.json", (
+    ("versions_tuple_tuple.json", (
         ('model', '1.0'),
         ('mypackage', '1.2.3dev4'))),
-    ("versions_tuplelist.json", (
+    ("versions_tuple_list.json", (
         ['model', '1.0'],
         ['mypackage', '1.2.3dev4'])),
-    ("versions_listtuple.json", [
+    ("versions_list_tuple.json", [
         ('model', '1.0'),
         ('mypackage', '1.2.3dev4')]),
-    ("versions_listlist.json", [
+    ("versions_list_list.json", [
         ['model', '1.0'],
         ['mypackage', '1.2.3dev4']])])
 def test_save_versions_list_tuple(tmpdir, versions_filename, versions_info):
@@ -102,13 +102,13 @@ def test_save_versions_list_tuple(tmpdir, versions_filename, versions_info):
 
 @pytest.mark.parametrize('versions_filename, versions_info', [
     ("versions_nonnested", ('model', '1.0')),
-    ("versions_toofew1", (
+    ("versions_too_few1", (
         ('model', '1.0'),
         'mypackage')),
-    ("versions_toofew2", (
+    ("versions_too_few2", (
         ('model', '1.0'),
         ('mypackage', ))),
-    ("versions_toomany", (
+    ("versions_too_many", (
         ('model', '1.0'),
         ('mypackage', '1.2.3', 'dev4')))])
 def test_save_versions_unpack(tmpdir, versions_filename, versions_info):
@@ -120,7 +120,7 @@ def test_save_versions_unpack(tmpdir, versions_filename, versions_info):
 
 def test_save_versions_indent(tmpdir, versions_dict):
     # Indent = 4
-    versions_file = tmpdir.join("versions_indent4.json")
+    versions_file = tmpdir.join("versions_indent_4.json")
 
     save_versions(str(versions_file), versions_dict, indent=4)
     n_bytes4 = versions_file.size()
@@ -128,7 +128,7 @@ def test_save_versions_indent(tmpdir, versions_dict):
     assert n_lines4 == 4
 
     # Indent = 2
-    versions_file = tmpdir.join("versions_indent2.json")
+    versions_file = tmpdir.join("versions_indent_2.json")
 
     save_versions(str(versions_file), versions_dict, indent=2)
     n_bytes2 = versions_file.size()
@@ -137,7 +137,7 @@ def test_save_versions_indent(tmpdir, versions_dict):
     assert n_lines2 == 4
 
     # Indent = None
-    versions_file = tmpdir.join("versions_indentnone.json")
+    versions_file = tmpdir.join("versions_indent_none.json")
 
     save_versions(str(versions_file), versions_dict, indent=None)
     n_bytes_none = versions_file.size()
@@ -150,7 +150,7 @@ def test_save_versions_indent(tmpdir, versions_dict):
     {'fp': None},
     {'obj': None}])
 def test_save_versions_forbid_kwargs(tmpdir, versions_dict, kwargs):
-    versions_file = tmpdir.join("versions_forbidkw.json")
+    versions_file = tmpdir.join("versions_forbid_kwargs.json")
 
     with pytest.raises(TypeError):
         save_versions(str(versions_file), versions_dict, **kwargs)

@@ -75,7 +75,7 @@ def test_parse_args_params_filename_option(monkeypatch, tmpdir):
     allowed_options = ['params_filename']
 
     # Correct
-    params_file = tmpdir.join("params.py")
+    params_file = tmpdir.join("params_ok.py")
     params_file.write("")
     argv = ["model.py", "-p", str(params_file)]
     monkeypatch.setattr(sys, 'argv', argv)
@@ -84,7 +84,7 @@ def test_parse_args_params_filename_option(monkeypatch, tmpdir):
     assert options.params_filename == str(params_file)
 
     # Non-existing parameter file
-    params_file = tmpdir.join("nonexist.py")
+    params_file = tmpdir.join("params_nonexist.py")
     argv = ["model.py", "-p", str(params_file)]
     monkeypatch.setattr(sys, 'argv', argv)
 
@@ -92,7 +92,7 @@ def test_parse_args_params_filename_option(monkeypatch, tmpdir):
         options = parse_args(allowed_options)
 
     # Existing parameter file with no access
-    params_file = tmpdir.join("noaccess.py")
+    params_file = tmpdir.join("params_no_access.py")
     params_file.write("")
     os.chmod(str(params_file), 0)
     argv = ["model.py", "-p", str(params_file)]
@@ -106,7 +106,7 @@ def test_parse_args_data_dirname_option(monkeypatch, tmpdir):
     allowed_options = ['data_dirname']
 
     # Correct
-    datadir = tmpdir.mkdir("data")
+    datadir = tmpdir.mkdir("data_ok")
     argv = ["model.py", "-d", str(datadir)]
     monkeypatch.setattr(sys, 'argv', argv)
 
@@ -114,7 +114,7 @@ def test_parse_args_data_dirname_option(monkeypatch, tmpdir):
     assert options.data_dirname == str(datadir)
 
     # Non-existing directory
-    datadir = tmpdir.join("nonexist")
+    datadir = tmpdir.join("data_nonexist")
     argv = ["model.py", "-d", str(datadir)]
     monkeypatch.setattr(sys, 'argv', argv)
 
@@ -122,7 +122,7 @@ def test_parse_args_data_dirname_option(monkeypatch, tmpdir):
         options = parse_args(allowed_options)
 
     # Existing directory with no access
-    datadir = tmpdir.mkdir("noaccess")
+    datadir = tmpdir.mkdir("data_no_access")
     os.chmod(str(datadir), 0)
     argv = ["model.py", "-d", str(datadir)]
     monkeypatch.setattr(sys, 'argv', argv)
@@ -339,7 +339,7 @@ def test_parse_known_args_params_filename_option(monkeypatch, tmpdir):
     allowed_options = ['params_filename']
 
     # Correct
-    params_file = tmpdir.join("params.py")
+    params_file = tmpdir.join("params_ok.py")
     params_file.write("")
     argv = ["model.py", "-p", str(params_file)]
     monkeypatch.setattr(sys, 'argv', argv)
@@ -348,7 +348,7 @@ def test_parse_known_args_params_filename_option(monkeypatch, tmpdir):
     assert options.params_filename == str(params_file)
 
     # Non-existing parameter file
-    params_file = tmpdir.join("nonexist.py")
+    params_file = tmpdir.join("params_nonexist.py")
     argv = ["model.py", "-p", str(params_file)]
     monkeypatch.setattr(sys, 'argv', argv)
 
@@ -356,7 +356,7 @@ def test_parse_known_args_params_filename_option(monkeypatch, tmpdir):
         options, extra_args = parse_known_args(allowed_options)
 
     # Existing parameter file with no access
-    params_file = tmpdir.join("noaccess.py")
+    params_file = tmpdir.join("params_no_access.py")
     params_file.write("")
     os.chmod(str(params_file), 0)
     argv = ["model.py", "-p", str(params_file)]
@@ -370,7 +370,7 @@ def test_parse_known_args_data_dirname_option(monkeypatch, tmpdir):
     allowed_options = ['data_dirname']
 
     # Correct
-    datadir = tmpdir.mkdir("data")
+    datadir = tmpdir.mkdir("data_ok")
     argv = ["model.py", "-d", str(datadir)]
     monkeypatch.setattr(sys, 'argv', argv)
 
@@ -378,7 +378,7 @@ def test_parse_known_args_data_dirname_option(monkeypatch, tmpdir):
     assert options.data_dirname == str(datadir)
 
     # Non-existing directory
-    datadir = tmpdir.join("nonexist")
+    datadir = tmpdir.join("data_nonexist")
     argv = ["model.py", "-d", str(datadir)]
     monkeypatch.setattr(sys, 'argv', argv)
 
@@ -386,7 +386,7 @@ def test_parse_known_args_data_dirname_option(monkeypatch, tmpdir):
         options, extra_args = parse_known_args(allowed_options)
 
     # Existing directory with no access
-    datadir = tmpdir.mkdir("noaccess")
+    datadir = tmpdir.mkdir("data_no_access")
     os.chmod(str(datadir), 0)
     argv = ["model.py", "-d", str(datadir)]
     monkeypatch.setattr(sys, 'argv', argv)
