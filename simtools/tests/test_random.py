@@ -12,7 +12,7 @@ from simtools.random import generate_seed
 @pytest.mark.parametrize('maxsize, seed', [
     (2**31 - 1, 808464432),
     (2**63 - 1, 3472328296227680304)])
-def test_generate_seed_default(monkeypatch, maxsize, seed):
+def test_generate_seed(monkeypatch, maxsize, seed):
     monkeypatch.setattr(os, 'urandom', lambda n: "\x30" * n)
     monkeypatch.setattr(sys, 'maxsize', maxsize)
 

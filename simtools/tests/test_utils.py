@@ -18,8 +18,8 @@ def versions_dict():
     return versions_info
 
 
-def test_save_platform_default(tmpdir):
-    platform_file = tmpdir.join("platform_default.json")
+def test_save_platform(tmpdir):
+    platform_file = tmpdir.join("platform.json")
 
     save_platform(str(platform_file))
     platform_json = json.load(platform_file)

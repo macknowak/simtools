@@ -39,7 +39,7 @@ def test_generate_sim_dirname(local_time):
     assert sim_dirname == "_20001030_070809"
 
 
-def test_make_dirs_nonexist(tmpdir):
+def test_make_dirs(tmpdir):
     sim_dirname = "20001030_070809"
 
     with tmpdir.as_cwd():

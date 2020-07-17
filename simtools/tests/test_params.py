@@ -194,8 +194,8 @@ def test_params_load_no_ext(tmpdir):
         p.load(str(params_file))
 
 
-def test_params_save_default(tmpdir, params):
-    params_file = tmpdir.join("params_default.json")
+def test_params_save(tmpdir, params):
+    params_file = tmpdir.join("params.json")
 
     params.save(str(params_file))
     params_json = json.load(params_file)
