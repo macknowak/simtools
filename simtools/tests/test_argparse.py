@@ -106,25 +106,25 @@ def test_parse_args_data_dirname_option(monkeypatch, tmpdir):
     allowed_options = ['data_dirname']
 
     # Correct
-    datadir = tmpdir.mkdir("data_ok")
-    argv = ["model.py", "-d", str(datadir)]
+    data_dir = tmpdir.mkdir("data_ok")
+    argv = ["model.py", "-d", str(data_dir)]
     monkeypatch.setattr(sys, 'argv', argv)
 
     options = parse_args(allowed_options)
-    assert options.data_dirname == str(datadir)
+    assert options.data_dirname == str(data_dir)
 
     # Non-existing directory
-    datadir = tmpdir.join("data_nonexist")
-    argv = ["model.py", "-d", str(datadir)]
+    data_dir = tmpdir.join("data_nonexist")
+    argv = ["model.py", "-d", str(data_dir)]
     monkeypatch.setattr(sys, 'argv', argv)
 
     with pytest.raises(SystemExit):
         options = parse_args(allowed_options)
 
     # Existing directory with no access
-    datadir = tmpdir.mkdir("data_no_access")
-    os.chmod(str(datadir), 0)
-    argv = ["model.py", "-d", str(datadir)]
+    data_dir = tmpdir.mkdir("data_no_access")
+    os.chmod(str(data_dir), 0)
+    argv = ["model.py", "-d", str(data_dir)]
     monkeypatch.setattr(sys, 'argv', argv)
 
     with pytest.raises(SystemExit):
@@ -167,7 +167,7 @@ def test_parse_args_extra_args(monkeypatch, argv):
 
 
 def test_parse_args_only_long_names(monkeypatch, tmpdir):
-    datadir = tmpdir.mkdir("data")
+    data_dir = tmpdir.mkdir("data")
     tmpdir.join("params.py").write("")
     allowed_options = ['params_filename', 'sim_id', 'save_data',
                        'data_dirname', 'only_test_params']
@@ -175,19 +175,19 @@ def test_parse_args_only_long_names(monkeypatch, tmpdir):
     with tmpdir.as_cwd():
         # Long names of run options
         argv = ["model.py", "--params", "params.py", "--simid",
-                "20001020_102030", "--save", "--data-dir", str(datadir)]
+                "20001020_102030", "--save", "--data-dir", str(data_dir)]
         monkeypatch.setattr(sys, 'argv', argv)
 
         options = parse_args(allowed_options, only_long_names=True)
         assert options.params_filename == "params.py"
         assert options.sim_id == "20001020_102030"
         assert options.save_data == True
-        assert options.data_dirname == str(datadir)
+        assert options.data_dirname == str(data_dir)
         assert options.only_test_params == False
 
         # Short names of run options
         argv = ["model.py", "-p", "params.py", "-i", "20001020_102030", "-s",
-                "-d", str(datadir)]
+                "-d", str(data_dir)]
         monkeypatch.setattr(sys, 'argv', argv)
 
         with pytest.raises(SystemExit):
@@ -370,25 +370,25 @@ def test_parse_known_args_data_dirname_option(monkeypatch, tmpdir):
     allowed_options = ['data_dirname']
 
     # Correct
-    datadir = tmpdir.mkdir("data_ok")
-    argv = ["model.py", "-d", str(datadir)]
+    data_dir = tmpdir.mkdir("data_ok")
+    argv = ["model.py", "-d", str(data_dir)]
     monkeypatch.setattr(sys, 'argv', argv)
 
     options, extra_args = parse_known_args(allowed_options)
-    assert options.data_dirname == str(datadir)
+    assert options.data_dirname == str(data_dir)
 
     # Non-existing directory
-    datadir = tmpdir.join("data_nonexist")
-    argv = ["model.py", "-d", str(datadir)]
+    data_dir = tmpdir.join("data_nonexist")
+    argv = ["model.py", "-d", str(data_dir)]
     monkeypatch.setattr(sys, 'argv', argv)
 
     with pytest.raises(SystemExit):
         options, extra_args = parse_known_args(allowed_options)
 
     # Existing directory with no access
-    datadir = tmpdir.mkdir("data_no_access")
-    os.chmod(str(datadir), 0)
-    argv = ["model.py", "-d", str(datadir)]
+    data_dir = tmpdir.mkdir("data_no_access")
+    os.chmod(str(data_dir), 0)
+    argv = ["model.py", "-d", str(data_dir)]
     monkeypatch.setattr(sys, 'argv', argv)
 
     with pytest.raises(SystemExit):
@@ -461,7 +461,7 @@ def test_parse_known_args_extra_args(monkeypatch):
 
 
 def test_parse_known_args_only_long_names(monkeypatch, tmpdir):
-    datadir = tmpdir.mkdir("data")
+    data_dir = tmpdir.mkdir("data")
     tmpdir.join("params.py").write("")
     allowed_options = ['params_filename', 'sim_id', 'save_data',
                        'data_dirname', 'only_test_params']
@@ -469,7 +469,7 @@ def test_parse_known_args_only_long_names(monkeypatch, tmpdir):
     with tmpdir.as_cwd():
         # Long names of run options
         argv = ["model.py", "--params", "params.py", "--simid",
-                "20001020_102030", "--save", "--data-dir", str(datadir)]
+                "20001020_102030", "--save", "--data-dir", str(data_dir)]
         monkeypatch.setattr(sys, 'argv', argv)
 
         options, extra_args = parse_known_args(allowed_options,
@@ -477,13 +477,13 @@ def test_parse_known_args_only_long_names(monkeypatch, tmpdir):
         assert options.params_filename == "params.py"
         assert options.sim_id == "20001020_102030"
         assert options.save_data == True
-        assert options.data_dirname == str(datadir)
+        assert options.data_dirname == str(data_dir)
         assert options.only_test_params == False
         assert extra_args == []
 
         # Short names of run options
         argv = ["model.py", "-p", "params.py", "-i", "20001020_102030", "-s",
-                "-d", str(datadir)]
+                "-d", str(data_dir)]
         monkeypatch.setattr(sys, 'argv', argv)
 
         options, extra_args = parse_known_args(allowed_options,
