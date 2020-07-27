@@ -101,6 +101,8 @@ def test_parse_args_params_filename_option(monkeypatch, tmpdir):
     with pytest.raises(SystemExit):
         options = parse_args(allowed_options)
 
+    os.chmod(str(params_file), 0o644)
+
 
 def test_parse_args_data_dirname_option(monkeypatch, tmpdir):
     allowed_options = ['data_dirname']
@@ -129,6 +131,8 @@ def test_parse_args_data_dirname_option(monkeypatch, tmpdir):
 
     with pytest.raises(SystemExit):
         options = parse_args(allowed_options)
+
+    os.chmod(str(data_dir), 0o755)
 
 
 @pytest.mark.parametrize('argv', [
@@ -365,6 +369,8 @@ def test_parse_known_args_params_filename_option(monkeypatch, tmpdir):
     with pytest.raises(SystemExit):
         options, extra_args = parse_known_args(allowed_options)
 
+    os.chmod(str(params_file), 0o644)
+
 
 def test_parse_known_args_data_dirname_option(monkeypatch, tmpdir):
     allowed_options = ['data_dirname']
@@ -393,6 +399,8 @@ def test_parse_known_args_data_dirname_option(monkeypatch, tmpdir):
 
     with pytest.raises(SystemExit):
         options, extra_args = parse_known_args(allowed_options)
+
+    os.chmod(str(data_dir), 0o755)
 
 
 def test_parse_known_args_disallowed_option(monkeypatch):
