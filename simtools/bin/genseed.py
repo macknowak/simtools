@@ -28,6 +28,10 @@ def parse_args():
         "-b", "--bytes", metavar="BYTES",
         dest='n_bytes', type=int,
         help="generate random seed that is BYTES bytes long")
+    parser.add_argument(
+        "-u", "--unsigned-limit",
+        dest='unsigned_limit', action='store_true',
+        help="increase the upper limit to that of the unsigned integer")
     args = parser.parse_args()
     if args.n_bytes is not None:
         if args.n_bytes <= 0:
@@ -44,7 +48,7 @@ def main():
     args = parse_args()
 
     # Generate random seed and print it
-    print(generate_seed(args.n_bytes))
+    print(generate_seed(args.n_bytes, args.unsigned_limit))
 
 
 if __name__ == '__main__':
