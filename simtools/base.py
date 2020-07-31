@@ -12,6 +12,8 @@ They also provide the following functionality:
 - checking if object is a string.
 """
 
+import sys
+
 
 def is_iterable(obj):
     """Check if object is an iterable."""
@@ -25,11 +27,10 @@ def is_iterable(obj):
 
 def is_string(obj):
     """Check if object is a string."""
-    try:
-        basestring
-    except NameError:
-        basestring = str
-    return isinstance(obj, basestring)
+    if sys.version_info[0] == 3:
+        return isinstance(obj, str)
+    else:
+        return isinstance(obj, basestring)
 
 
 class Dict(dict):
