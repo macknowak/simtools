@@ -13,7 +13,6 @@ Parameter services provide the following functionality:
 - loading parameter names from a text file.
 """
 
-import collections
 import csv
 import json
 import sys
@@ -21,6 +20,11 @@ import types
 
 from simtools.base import Dict, is_iterable, is_string
 from simtools.exceptions import FileError
+
+if sys.version_info[0] == 3:
+    import collections.abc as collections_abc
+else:
+    import collections as collections_abc
 
 
 class Params(Dict):
@@ -99,7 +103,7 @@ class Params(Dict):
                                 error_msg=exc_value.args[0])
 
             # Remove modules from the local namespace
-            for paramname, paramval in new_params.items():
+            for paramname, paramval in list(new_params.items()):
                 if type(paramval) is types.ModuleType:
                     del new_params[paramname]
 
@@ -114,7 +118,7 @@ def load_params(filename):
     return params
 
 
-class ParamSets(collections.MutableSequence):
+class ParamSets(collections_abc.MutableSequence):
     """Container storing parameter sets."""
 
     def __init__(self):
@@ -256,7 +260,11 @@ class ParamSets(collections.MutableSequence):
             fieldnames = record_paramnames
 
         # Save parameter records to a CSV file
-        with open(filename, 'wb') as paramsets_file:
+        if sys.version_info[0] == 3:
+            paramsets_file = open(filename, 'w', newline='')
+        else:
+            paramsets_file = open(filename, 'wb')
+        with paramsets_file:
             csv_writer = csv.DictWriter(paramsets_file, fieldnames,
                                         extrasaction='ignore', dialect=dialect)
             if with_header:

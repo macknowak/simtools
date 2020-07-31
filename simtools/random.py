@@ -14,7 +14,7 @@ MAX_N_BYTES = 256
 def generate_seed(n_bytes=None, unsigned_limit=False):
     """Generate random seed using OS-specific randomness source."""
     # If the number of bytes is specified, validate it, otherwise determine it
-    # based on the largest positive integer supported by the platform
+    # based on the largest positive integer natively supported by the platform
     if n_bytes is not None:
         if not isinstance(n_bytes, int):
             raise TypeError("n_bytes must be an integer or None")
@@ -22,10 +22,13 @@ def generate_seed(n_bytes=None, unsigned_limit=False):
             raise ValueError("n_bytes must be positive and not greater "
                              "than {}".format(MAX_N_BYTES))
     else:
-        n_bytes = (sys.maxsize.bit_length() + 1) / 8
+        n_bytes = (sys.maxsize.bit_length() + 1) // 8
 
     # Generate random bytes using OS-specific randomness source
-    rand_bytes = os.urandom(n_bytes).encode('hex')
+    if sys.version_info[0] == 3:
+        rand_bytes = os.urandom(n_bytes).hex()
+    else:
+        rand_bytes = os.urandom(n_bytes).encode('hex')
 
     # If the generated random seed should not exceed the upper limit of the
     # signed integer represented in the same number of bytes and the highest

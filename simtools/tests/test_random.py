@@ -13,7 +13,10 @@ from simtools.random import generate_seed
     (2**31 - 1, 808464432),
     (2**63 - 1, 3472328296227680304)])
 def test_generate_seed(monkeypatch, maxsize, seed):
-    monkeypatch.setattr(os, 'urandom', lambda n: "\x30" * n)
+    if sys.version_info[0] == 3:
+        monkeypatch.setattr(os, 'urandom', lambda n: b"\x30" * n)
+    else:
+        monkeypatch.setattr(os, 'urandom', lambda n: "\x30" * n)
     monkeypatch.setattr(sys, 'maxsize', maxsize)
 
     gen_seed = generate_seed()
@@ -24,7 +27,10 @@ def test_generate_seed(monkeypatch, maxsize, seed):
     (4, 808464432),
     (8, 3472328296227680304)])
 def test_generate_seed_n_bytes_in_range(monkeypatch, n_bytes, seed):
-    monkeypatch.setattr(os, 'urandom', lambda n: "\x30" * n)
+    if sys.version_info[0] == 3:
+        monkeypatch.setattr(os, 'urandom', lambda n: b"\x30" * n)
+    else:
+        monkeypatch.setattr(os, 'urandom', lambda n: "\x30" * n)
 
     gen_seed = generate_seed(n_bytes)
     assert gen_seed == seed
@@ -44,7 +50,10 @@ def test_generate_seed_n_bytes_out_range(n_bytes):
     (2**63 - 1, 36170086419038336, 9259542123273814144)])
 def test_generate_seed_unsigned_limit(monkeypatch, maxsize, signed_seed,
                                       unsigned_seed):
-    monkeypatch.setattr(os, 'urandom', lambda n: "\x80" * n)
+    if sys.version_info[0] == 3:
+        monkeypatch.setattr(os, 'urandom', lambda n: b"\x80" * n)
+    else:
+        monkeypatch.setattr(os, 'urandom', lambda n: "\x80" * n)
     monkeypatch.setattr(sys, 'maxsize', maxsize)
 
     # Unsigned integer limit

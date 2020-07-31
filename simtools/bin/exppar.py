@@ -31,7 +31,7 @@ extra_options = {
         "--indent": 'indent'
         }
     }
-supported_filefmts = extra_options.keys()
+supported_filefmts = list(extra_options.keys())
 
 
 def getfilefmt(filename):

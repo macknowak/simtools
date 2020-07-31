@@ -301,9 +301,9 @@ def test_paramsets_mutable_sequence():
     with pytest.raises(IndexError):
         paramsets[0]
     with pytest.raises(StopIteration):
-        iter(paramsets).next()
+        next(iter(paramsets))
     with pytest.raises(StopIteration):
-        reversed(paramsets).next()
+        next(reversed(paramsets))
 
     # Append
     p0 = Params({'p1': 1, 'p2': 2.5, 'p3': "abc", 'p4': None})
