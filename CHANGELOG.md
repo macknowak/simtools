@@ -24,6 +24,7 @@
 - Added parameter exporter console script.
 - Added random seed generator console script.
 - Added an example model demonstrating basic package features.
+- Added an example model demonstrating use of various options.
 - Added hierarchy of SimTools exceptions.
 - Added package installer.
 - Added package description.
