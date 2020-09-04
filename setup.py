@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
+import os
 import sys
 
 try:
@@ -9,7 +11,14 @@ except ImportError:
         "Package 'setuptools' is required to proceed, but is not installed; "
         "please install it and try again")
 
+setup_path = os.path.abspath(os.path.dirname(__file__))
 testing = "test" in sys.argv or "pytest" in sys.argv
+
+
+def read_description(filename):
+    with open(os.path.join(setup_path, filename), 'r') as description_file:
+        return description_file.read()
+
 
 setup(
     name="simtools",
@@ -17,6 +26,8 @@ setup(
     author="Przemyslaw (Mack) Nowak",
     author_email="pnowak.mack@gmail.com",
     description="Python tools for simulation management",
+    long_description=read_description("README.md"),
+    long_description_content_type='text/markdown',
     url="https://github.com/macknowak/simtools",
     license="GNU General Public License v3 or later (GPLv3+)",
     packages=['simtools', 'simtools.bin'],
