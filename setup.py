@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import os
-import sys
 
 try:
     from setuptools import setup
@@ -12,7 +11,6 @@ except ImportError:
         "please install it and try again")
 
 setup_path = os.path.abspath(os.path.dirname(__file__))
-testing = "test" in sys.argv or "pytest" in sys.argv
 
 
 def read_description(filename):
@@ -38,8 +36,7 @@ setup(
             'runsim = simtools.bin.runsim:main'
             ]
         },
-    setup_requires=['pytest-runner'] if testing else [],
-    tests_require=['pytest'],
+    extras_require={'tests': "pytest"},
     classifiers=[
         'Development Status :: 1 - Planning',
         'Environment :: Console',
