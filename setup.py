@@ -8,7 +8,7 @@ try:
 except ImportError:
     raise ImportError(
         "Package 'setuptools' is required to proceed, but is not installed; "
-        "please install it and try again")
+        "please install it and try again.")
 
 setup_path = os.path.abspath(os.path.dirname(__file__))
 
