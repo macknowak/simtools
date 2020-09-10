@@ -1,3 +1,4 @@
 include *.md
 include LICENSE.txt
 include MANIFEST.in
+recursive-include simtools/tests *.py
