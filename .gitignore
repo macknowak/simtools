@@ -3,6 +3,8 @@ __pycache__/
 *.py[cod]
 
 # Packaged code
+build/
+dist/
 *.egg-info/
 *.eggs/
 *.egg
