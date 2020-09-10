@@ -37,6 +37,7 @@ setup(
             ]
         },
     extras_require={'tests': "pytest"},
+    package_data={"simtools": ["examples/*/*.py"]},
     classifiers=[
         'Development Status :: 1 - Planning',
         'Environment :: Console',
