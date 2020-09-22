@@ -34,7 +34,7 @@ extra_options = {
 supported_filefmts = list(extra_options.keys())
 
 
-def getfilefmt(filename):
+def get_filefmt(filename):
     """Retrieve file format based on file extension."""
     return os.path.splitext(filename)[1].lower()[1:]
 
@@ -83,7 +83,7 @@ def parse_args():
         dest='indent', type=int, default=argparse.SUPPRESS,
         help="indent each level by INDENT when exporting to JSON file")
     args = parser.parse_args()
-    export_filefmt = getfilefmt(args.export_filename)
+    export_filefmt = get_filefmt(args.export_filename)
     if export_filefmt not in supported_filefmts:
         parser.error("{}: file format not supported"
                      "".format(args.export_filename))
@@ -105,7 +105,7 @@ def main():
     args = parse_args()
 
     # Determine extra options depending on the format of the export file
-    export_filefmt = getfilefmt(args.export_filename)
+    export_filefmt = get_filefmt(args.export_filename)
     options = {}
     for opt in extra_options[export_filefmt].values():
         try:
