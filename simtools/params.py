@@ -111,13 +111,6 @@ class Params(Dict):
             self.update(new_params)
 
 
-def load_params(filename):
-    """Load parameters from a file."""
-    params = Params()
-    params.load(filename)
-    return params
-
-
 class ParamSets(collections_abc.MutableSequence):
     """Container storing parameter sets."""
 
@@ -218,29 +211,6 @@ class ParamSets(collections_abc.MutableSequence):
 
         return params_records
 
-    def _substitute_paramnames(self, paramnames, paramnames_map):
-        """Substitute parameter names according to a mapping."""
-        # If no mapping of parameter names is provided, do not substitute
-        # parameter names
-        if paramnames_map is None:
-            return paramnames
-
-        # Validate mapping of parameter names
-        for paramname in paramnames_map.keys():
-            if paramname not in paramnames:
-                raise ValueError(
-                    "Key '{}' in 'paramnames_map' is not a parameter name "
-                    "in 'paramnames'.".format(paramname))
-
-        # Determine substituted parameter names
-        new_paramnames = [paramname if paramname not in paramnames_map
-                          else paramnames_map[paramname]
-                          for paramname in paramnames]
-        if len(set(new_paramnames)) < len(paramnames):
-            raise ValueError("Substituted parameter names are not unique.")
-
-        return new_paramnames
-
     def _save_csv(self, filename, paramnames, paramnames_map, with_numbers,
                   with_header=True, dialect='excel-tab'):
         """Save parameter sets to a CSV file."""
@@ -297,6 +267,36 @@ class ParamSets(collections_abc.MutableSequence):
         # Save parameter records to a JSON file
         with open(filename, 'w') as paramsets_file:
             json.dump(params_records, paramsets_file, indent=indent, **kwargs)
+
+    def _substitute_paramnames(self, paramnames, paramnames_map):
+        """Substitute parameter names according to a mapping."""
+        # If no mapping of parameter names is provided, do not substitute
+        # parameter names
+        if paramnames_map is None:
+            return paramnames
+
+        # Validate mapping of parameter names
+        for paramname in paramnames_map.keys():
+            if paramname not in paramnames:
+                raise ValueError(
+                    "Key '{}' in 'paramnames_map' is not a parameter name "
+                    "in 'paramnames'.".format(paramname))
+
+        # Determine substituted parameter names
+        new_paramnames = [paramname if paramname not in paramnames_map
+                          else paramnames_map[paramname]
+                          for paramname in paramnames]
+        if len(set(new_paramnames)) < len(paramnames):
+            raise ValueError("Substituted parameter names are not unique.")
+
+        return new_paramnames
+
+
+def load_params(filename):
+    """Load parameters from a file."""
+    params = Params()
+    params.load(filename)
+    return params
 
 
 def export_params(export_filename, params_paths, paramnames,
