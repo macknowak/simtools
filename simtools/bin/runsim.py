@@ -95,7 +95,8 @@ def parse_args():
         help="optional additional arguments passed to the model file")
     args = parser.parse_args()
     if not args.executable and not os.access(args.model_filename, os.X_OK):
-        parser.error("permission denied: '{}'".format(args.model_filename))
+        parser.error("argument MODELFILE: permission denied: "
+                     "'{}'".format(args.model_filename))
     if args.copy_params and not args.params_filename:
         parser.error("argument --copy-params: requires argument -p/--params")
     if args.copy_params_filename and not args.params_filename:
