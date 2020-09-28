@@ -5,7 +5,7 @@ SimTools provides a set of tools facilitating management of simulations in
 Python.
 """
 
-__version__ = '0.1.0.dev1'
+__version__ = '0.1.0'
 __author__ = "Przemyslaw (Mack) Nowak"
 
 from .argparse import parse_args, parse_known_args

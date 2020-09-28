@@ -20,7 +20,7 @@ def read_description(filename):
 
 setup(
     name="simtools",
-    version='0.1.0.dev1',
+    version='0.1.0',
     author="Przemyslaw (Mack) Nowak",
     author_email="pnowak.mack@gmail.com",
     description="Python tools for simulation management",
